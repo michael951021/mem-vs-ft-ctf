@@ -1,0 +1,4 @@
+arm,split,success_rate,n
+A,train,1.0000,5
+A,test-indist,1.0000,1
+A,test-transfer,0.0000,0

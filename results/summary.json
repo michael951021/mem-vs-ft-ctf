@@ -1,0 +1,46 @@
+{
+  "n_attempts": 6,
+  "arms": [
+    "A"
+  ],
+  "seeds": [
+    0
+  ],
+  "success_rate": {
+    "A|train": {
+      "rate": 1.0,
+      "n": 5
+    },
+    "A|test-indist": {
+      "rate": 1.0,
+      "n": 1
+    },
+    "A|test-transfer": {
+      "rate": 0.0,
+      "n": 0
+    }
+  },
+  "H1_advantage_over_A": {},
+  "H2_transfer_retention": {},
+  "efficiency": {
+    "A|test-indist": {
+      "mean_turns_to_solve": 3.0,
+      "mean_out_tokens": 97.0,
+      "n_solves": 1
+    },
+    "A|test-transfer": {
+      "mean_turns_to_solve": 0.0,
+      "mean_out_tokens": 0.0,
+      "n_solves": 0
+    }
+  },
+  "sample_efficiency_curve": {
+    "A": [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0
+    ]
+  }
+}

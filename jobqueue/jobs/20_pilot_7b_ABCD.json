@@ -1,0 +1,10 @@
+{
+  "id": "pilot-7b-ABCD",
+  "depends_on": ["pull-base-7b"],
+  "needs_gpu_free_mb": 9000,
+  "est_minutes": 120,
+  "cmd": ["bash", "scripts/run_pilot.sh"],
+  "cwd": ".",
+  "env_note": "set MODEL=qwen2.5:7b-instruct SEEDS='0 1 2' ARMS='A B C D' OUT=runs before running",
+  "note": "Re-run arms A-D on the matched 7B base so every arm (incl. QLoRA E/F) shares one frozen base. Writes runs/*-s*-pilot plus frozen playbook per seed."
+}

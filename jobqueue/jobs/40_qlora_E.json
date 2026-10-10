@@ -1,0 +1,8 @@
+{
+  "id": "qlora-E",
+  "depends_on": ["build-sft"],
+  "needs_gpu_free_mb": 20000,
+  "est_minutes": 60,
+  "cmd": [".venv/bin/python", "-m", "finetune.train_qlora", "--config", "configs/qlora_qwen7b.toml", "--data", "finetune/data/sft_all.jsonl", "--arm", "E", "--out", "finetune/adapters/E-qwen7b"],
+  "note": "QLoRA the 7B base on the verified experience. Records measured GPU-hours for compute-matching vs arm D."
+}

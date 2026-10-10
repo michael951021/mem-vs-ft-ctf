@@ -55,9 +55,9 @@ class RunLogger:
         self._save_config(config)
 
     def _save_config(self, config: dict):
-        import yaml  # optional; fall back to json
         path = os.path.join(self.run_dir, "config.yaml")
         try:
+            import yaml  # optional; fall back to json
             with open(path, "w") as f:
                 yaml.safe_dump(config, f, sort_keys=False)
         except Exception:

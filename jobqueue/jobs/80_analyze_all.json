@@ -1,0 +1,8 @@
+{
+  "id": "analyze-all",
+  "depends_on": ["eval-E", "eval-F"],
+  "needs_gpu_free_mb": 0,
+  "est_minutes": 3,
+  "cmd": ["bash", "-c", ".venv/bin/python -m scripts.analyze --glob '*' && .venv/bin/python -m scripts.make_figures"],
+  "note": "Re-aggregate all arms (A-F) incl. compute-matched H3, regenerate figures + results/summary.json."
+}

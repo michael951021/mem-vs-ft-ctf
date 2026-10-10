@@ -1,0 +1,8 @@
+{
+  "id": "eval-F",
+  "depends_on": ["import-E-ollama"],
+  "needs_gpu_free_mb": 9000,
+  "est_minutes": 40,
+  "cmd": [".venv/bin/python", "-m", "harness.run_experiment", "--arm", "D", "--arm-label", "F", "--eval-only", "--load-memory", "FILL_IN_playbook_from_7B_D_seed0.json", "--model", "qwen7b-ftE", "--seed", "0", "--out", "runs", "--tag", "h3"],
+  "note": "Arm F = hybrid: fine-tuned weights + frozen ACE playbook from the 7B arm-D pilot. Point --load-memory at runs/<7B-D-s0>/memory_frozen.json."
+}

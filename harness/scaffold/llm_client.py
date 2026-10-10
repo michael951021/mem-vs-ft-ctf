@@ -30,6 +30,9 @@ class LLMConfig:
     num_predict: int = 2048       # max tokens per reply (room for <think>)
     keep_alive: str = "30m"
     timeout_s: int = 600
+    think: bool = False           # reasoning-model <think>; OFF by default so
+                                  # generations stay short under GPU contention.
+                                  # Fixed+logged decoding choice, identical across arms.
 
 
 @dataclass
@@ -78,6 +81,7 @@ class OllamaClient:
             "messages": messages,
             "stream": False,
             "keep_alive": cfg.keep_alive,
+            "think": cfg.think,
             "options": options,
         }
         data = json.dumps(payload).encode()

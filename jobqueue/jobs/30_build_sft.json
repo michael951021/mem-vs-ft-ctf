@@ -1,0 +1,8 @@
+{
+  "id": "build-sft",
+  "depends_on": ["pilot-7b-ABCD"],
+  "needs_gpu_free_mb": 0,
+  "est_minutes": 2,
+  "cmd": [".venv/bin/python", "-m", "finetune.build_sft", "--runs", "runs", "--glob", "*pilot*", "--split-by-family", "--out", "finetune/data"],
+  "note": "Build decontaminated, flag-redacted SFT corpus from the 7B pilot's verified TRAIN solves (arms E/F train on the SAME experience the memory arms used)."
+}

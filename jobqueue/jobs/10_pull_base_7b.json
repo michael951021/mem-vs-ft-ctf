@@ -1,0 +1,7 @@
+{
+  "id": "pull-base-7b",
+  "needs_gpu_free_mb": 0,
+  "est_minutes": 10,
+  "cmd": ["ollama", "pull", "qwen2.5:7b-instruct"],
+  "note": "Pull the single frozen 7-14B base (Qwen2.5-7B-Instruct) for a matched H3. Disk/net only."
+}

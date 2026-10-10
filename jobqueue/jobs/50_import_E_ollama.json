@@ -1,0 +1,8 @@
+{
+  "id": "import-E-ollama",
+  "depends_on": ["qlora-E"],
+  "needs_gpu_free_mb": 0,
+  "est_minutes": 10,
+  "cmd": ["bash", "finetune/import_adapter.sh", "finetune/adapters/E-qwen7b", "qwen7b-ftE"],
+  "note": "Merge the adapter and import as Ollama tag qwen7b-ftE so arm-E/F eval uses the identical ReAct agent path (fairness)."
+}

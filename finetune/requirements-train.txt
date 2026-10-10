@@ -1,0 +1,8 @@
+# Installed ONLY when a GPU window opens (host-only training). Pinned for repro.
+torch==2.4.1
+transformers==4.44.2
+peft==0.12.0
+bitsandbytes==0.43.3
+trl==0.9.6
+datasets==2.21.0
+accelerate==0.33.0
