@@ -8,8 +8,12 @@ Domain: cybersecurity CTF (flags/execution give non-gameable, ground-truth feedb
 See the full brief in `docs/brief.md`. Research question and hypotheses H1–H3 in `REPORT.md §3`.
 
 ## Status
-Phase 0 (stand-up). See `RUNLOG.md` for the live state and `DECISIONS.md` for branch choices.
-Host facts (measured) in `docs/host_facts.md`.
+Phase 1 (arms A–D built + offline-validated; live pilot running on the local CTF suite).
+Arms E/F (QLoRA) + the Docker benchmark scale-up are staged on the host GPU queue
+(`jobqueue/`, GPU-gated) because the cards are committed to a live inference server.
+See `RUNLOG.md` for the live state, `DECISIONS.md` for branch choices, `REPORT.md` for the
+write-up (its §5 numbers auto-fill from logged data — no placeholders). Host facts in
+`docs/host_facts.md`.
 
 ## The six arms (shared scaffold, swappable learning module)
 | Arm | Learning module | Between-task behavior |
@@ -23,18 +27,33 @@ Host facts (measured) in `docs/host_facts.md`.
 
 ## Layout
 ```
-env/         pinned deps, Dockerfiles, env setup
-harness/     agent scaffold (scaffold/) + pluggable arms (arms/)
-memory/      playbook (D), retrieval (C), episodic (B)
-finetune/    QLoRA/FSDP configs, corpus build, flag-redaction, decontam
-benchmarks/  adapters (InterCode-CTF, NYU-CTF, Cybench) + family-tag map
-configs/     per-run YAML
-runs/        per-run JSONL logs (schema: docs/run_schema.md)
-results/     aggregated CSVs, figures/, stats/
-queue/       file-based job queue + runner for deferred heavy runs
-REPORT.md    the deliverable
+env/local_suite/   12 benign picoCTF-style challenges + ground-truth TaskEnv (no Docker)
+env/intercode/     InterCode-CTF Docker adapter (staged; same TaskEnv protocol)
+harness/scaffold/  frozen base policy: LLM client, ReAct loop, logger
+harness/run_experiment.py   train→freeze→test(in-dist)→test(transfer) driver
+memory/arms.py     arms B (raw-ICL), C (episodic), D (ACE playbook) + redact.py
+finetune/          SFT corpus builder + host-only QLoRA trainer (arms E/F)
+jobqueue/          host GPU-job queue + specs + HUB.md (how to attach to the-box hub)
+scripts/           analyze, make_figures, render_report, audit_redaction, run_pilot.sh
+configs/           QLoRA config; runs/ JSONL logs; results/ CSVs+figures+summary.json
+REPORT.md          the deliverable (§5 auto-filled from logged data)
 ```
 
-## Reproduce (filled in as phases land)
-Prereqs: Docker (isolated bridge, no WAN), an Ollama endpoint, a Python 3.11/3.12 venv.
-See `env/` and per-phase commands below. (TBD as gates complete — no placeholders in results.)
+## Reproduce
+```bash
+python3.12 -m venv .venv && .venv/bin/pip install pyyaml numpy scipy matplotlib
+# offline validation (no GPU/Docker):
+.venv/bin/python -m memory.tests.test_arms
+.venv/bin/python -m harness.scaffold.tests.test_smoke_loop
+.venv/bin/python -m env.local_suite.env
+# real pilot against a local Ollama endpoint (think-off, seed-pinned):
+OUT=runs SEEDS="0 1 2" ARMS="A B C D" bash scripts/run_pilot.sh
+# analysis + figures + report numbers:
+.venv/bin/python -m scripts.analyze --glob '*pilot*'
+.venv/bin/python -m scripts.make_figures
+.venv/bin/python -m scripts.render_report --inject
+# staged GPU arms (when a card frees) — see jobqueue/HUB.md:
+.venv/bin/python -m jobqueue.runner plan && .venv/bin/python -m jobqueue.runner run
+```
+Prereqs: an Ollama endpoint (loopback) for the inference arms; Docker (isolated bridge, no WAN)
+only for the staged InterCode scale-up; a free GPU for the staged QLoRA arms.

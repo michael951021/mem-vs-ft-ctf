@@ -25,4 +25,4 @@ _Not yet measured (needs a non-zero in-distribution advantage to normalise again
 
 #### Run index (traceability)
 
-- **arm 114901**: `20261010-114901-A-local-suite-s0-pilot`
+- **arm A**: `20261010-114901-A-local-suite-s0-pilot`

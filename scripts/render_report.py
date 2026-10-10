@@ -25,10 +25,23 @@ ARMNAME = {"A": "A no-memory", "B": "B raw-ICL", "C": "C episodic-retrieval",
 
 
 def run_index():
+    """Map arm -> [run_ids], reading the arm from each run's config snapshot."""
     idx = {}
     for cfg in glob.glob("runs/*/config.yaml") + glob.glob("runs/*/config.json"):
         rid = os.path.basename(os.path.dirname(cfg))
-        idx.setdefault(rid.split("-")[1] if "-" in rid else "?", []).append(rid)
+        arm = "?"
+        try:
+            if cfg.endswith(".json"):
+                with open(cfg) as f:
+                    arm = json.load(f).get("arm", "?")
+            else:
+                import yaml
+                with open(cfg) as f:
+                    arm = yaml.safe_load(f).get("arm", "?")
+        except Exception:
+            parts = rid.split("-")
+            arm = parts[2] if len(parts) > 2 else "?"
+        idx.setdefault(str(arm), []).append(rid)
     return idx
 
 
