@@ -96,6 +96,27 @@ def paired_advantage(rows, arm, split):
             "advantage": round(point, 4), "ci_lo": round(lo, 4), "ci_hi": round(hi, 4)}
 
 
+def paired_turns_advantage(rows, arm, split):
+    """Mean reduction in turns-to-solve vs Arm A on challenges BOTH solved
+    (paired per challenge, clustered bootstrap). Positive = arm is more
+    step-efficient than A. This is the informative metric when success is at
+    ceiling: memory that hands the agent a verified recipe should cut steps."""
+    def solved_turns(a):
+        return {(r["challenge_id"], r["seed"]): r["turns_used"]
+                for r in rows if r["arm"] == a and r["split"] == split and r["success"]}
+    ta, tx = solved_turns("A"), solved_turns(arm)
+    keys = sorted(set(ta) & set(tx))  # only challenges both solved
+    by_ch = defaultdict(list)
+    for k in keys:
+        ch = k[0]
+        by_ch[ch].append(ta[k] - tx[k])  # A's turns minus arm's turns
+    clusters = [_mean(v) for v in by_ch.values()]
+    point, lo, hi = bootstrap_ci(clusters, _mean, seed=hash((arm, split, "turns")) & 0xffff)
+    return {"n_pairs": len(keys), "n_clusters": len(clusters),
+            "turns_saved_vs_A": round(point, 3),
+            "ci_lo": round(lo, 3), "ci_hi": round(hi, 3)}
+
+
 def transfer_retention(rows, arm):
     adv_in = paired_advantage(rows, arm, "test-indist")["advantage"]
     adv_tr = paired_advantage(rows, arm, "test-transfer")["advantage"]
@@ -136,6 +157,7 @@ def main():
     ap.add_argument("--runs", default="runs")
     ap.add_argument("--glob", default="*")
     ap.add_argument("--out", default="results/aggregated")
+    ap.add_argument("--summary-out", default="results/summary.json")
     args = ap.parse_args()
 
     rows = load_rows(args.runs, args.glob)
@@ -162,6 +184,7 @@ def main():
                                              "n": srate[(a, s)][1]}
                                 for a in arms for s in SPLITS},
                "H1_advantage_over_A": {}, "H2_transfer_retention": {},
+               "H1b_turns_saved_vs_A": {},
                "efficiency": {}, "sample_efficiency_curve": {}}
 
     print("\nH1 — paired advantage over Arm A (test-indist), clustered bootstrap 95% CI:")
@@ -173,6 +196,17 @@ def main():
         print(f"  D>C>B? {a}: Δ={adv['advantage']:+.3f}  "
               f"CI[{adv['ci_lo']:+.3f},{adv['ci_hi']:+.3f}]  "
               f"(pairs={adv['n_pairs']}, clusters={adv['n_clusters']})")
+
+    print("\nH1b — turns saved vs Arm A on jointly-solved tasks (step-efficiency):")
+    for a in arms:
+        if a == "A":
+            continue
+        for s in ("test-indist", "test-transfer"):
+            ta = paired_turns_advantage(rows, a, s)
+            summary["H1b_turns_saved_vs_A"][f"{a}|{s}"] = ta
+            if ta["n_pairs"]:
+                print(f"  {a} {s}: {ta['turns_saved_vs_A']:+.2f} turns "
+                      f"CI[{ta['ci_lo']:+.2f},{ta['ci_hi']:+.2f}] (pairs={ta['n_pairs']})")
 
     print("\nH2 — transfer retention (adv_transfer / adv_indist):")
     for a in arms:
@@ -202,7 +236,7 @@ def main():
             w.writerow([a, adv["advantage"], adv["ci_lo"], adv["ci_hi"], adv["n_clusters"]])
 
     os.makedirs("results", exist_ok=True)
-    with open("results/summary.json", "w") as f:
+    with open(args.summary_out, "w") as f:
         json.dump(summary, f, indent=2)
     print(f"\nwrote {args.out}/*.csv and results/summary.json")
 

@@ -11,8 +11,9 @@ SEEDS="${SEEDS:-0 1 2}"
 ARMS="${ARMS:-A B C D}"
 export CTF_WORKROOT="${CTF_WORKROOT:-$(mktemp -d)}"
 echo "pilot start $(date -Is)  model=$MODEL seeds='$SEEDS' arms='$ARMS' out=$OUT workroot=$CTF_WORKROOT"
-harvest() {  # aggregate + figures + inject report numbers from logged data
-  $PY -m scripts.analyze --glob '*pilot*' >/dev/null 2>&1 || true
+harvest() {  # aggregate (per tier) + figures + inject report numbers from logged data
+  $PY -m scripts.analyze --glob '*-pilot' --summary-out results/summary.json >/dev/null 2>&1 || true
+  $PY -m scripts.analyze --glob '*-hardpilot' --summary-out results/summary_hard.json >/dev/null 2>&1 || true
   $PY -m scripts.make_figures >/dev/null 2>&1 || true
   $PY -m scripts.render_report --inject >/dev/null 2>&1 || true
   $PY -m scripts.audit_redaction >/dev/null 2>&1 || true

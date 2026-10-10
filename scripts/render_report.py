@@ -80,6 +80,21 @@ def render(summary):
         out.append("_Not yet measured (needs >=2 arms with test-indist rows; "
                    "pending the pilot's memory arms)._")
 
+    out.append("\n#### H1b — step-efficiency: turns saved vs Arm A on jointly-solved tasks\n")
+    out.append("_The informative metric when success is at ceiling: a verified "
+               "recipe in memory should let the agent solve in fewer turns._\n")
+    h1b = summary.get("H1b_turns_saved_vs_A", {})
+    rows_b = [(k, v) for k, v in h1b.items() if v.get("n_pairs")]
+    if rows_b:
+        out.append("| arm·split | turns saved vs A | 95% CI | pairs |")
+        out.append("|---|---|---|---|")
+        for k, v in rows_b:
+            out.append(f"| {k} | {v['turns_saved_vs_A']:+.2f} | "
+                       f"[{v['ci_lo']:+.2f}, {v['ci_hi']:+.2f}] | {v['n_pairs']} |")
+    else:
+        out.append("_Not yet measured (needs a memory arm and Arm A to both solve "
+                   "the same tasks)._")
+
     out.append("\n#### H2 — transfer retention to sibling surfaces\n")
     h2 = summary.get("H2_transfer_retention", {})
     if any(v.get("retention") is not None for v in h2.values()):
@@ -108,6 +123,26 @@ def render(summary):
     return "\n".join(out) + "\n"
 
 
+def render_hard(summary):
+    """Compact hard-tier (chained-mechanism) block: success + step-efficiency."""
+    out = ["\n### 5.2 Hard tier (crypto/chain: decode→XOR, sibling surfaces)\n",
+           f"_{summary['n_attempts']} attempts, arms {summary['arms']}, "
+           f"seeds {summary['seeds']}._\n"]
+    out.append(md_table(summary))
+    h1b = {k: v for k, v in summary.get("H1b_turns_saved_vs_A", {}).items()
+           if v.get("n_pairs")}
+    out.append("\n**Step-efficiency (turns saved vs Arm A, jointly-solved):**")
+    if h1b:
+        out.append("\n| arm·split | turns saved vs A | 95% CI | pairs |")
+        out.append("|---|---|---|---|")
+        for k, v in h1b.items():
+            out.append(f"| {k} | {v['turns_saved_vs_A']:+.2f} | "
+                       f"[{v['ci_lo']:+.2f}, {v['ci_hi']:+.2f}] | {v['n_pairs']} |")
+    else:
+        out.append(" _pending the hard-tier memory arms._")
+    return "\n".join(out) + "\n"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--summary", default="results/summary.json")
@@ -118,6 +153,9 @@ def main():
     with open(args.summary) as f:
         summary = json.load(f)
     block = render(summary)
+    if os.path.isfile("results/summary_hard.json"):
+        with open("results/summary_hard.json") as f:
+            block += render_hard(json.load(f))
     os.makedirs("results", exist_ok=True)
     with open("results/RESULTS_AUTO.md", "w") as f:
         f.write(block)

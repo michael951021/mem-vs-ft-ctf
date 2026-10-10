@@ -1,5 +1,5 @@
 {
-  "n_attempts": 6,
+  "n_attempts": 15,
   "arms": [
     "A"
   ],
@@ -13,25 +13,26 @@
     },
     "A|test-indist": {
       "rate": 1.0,
-      "n": 1
+      "n": 5
     },
     "A|test-transfer": {
-      "rate": 0.0,
-      "n": 0
+      "rate": 1.0,
+      "n": 5
     }
   },
   "H1_advantage_over_A": {},
   "H2_transfer_retention": {},
+  "H1b_turns_saved_vs_A": {},
   "efficiency": {
     "A|test-indist": {
-      "mean_turns_to_solve": 3.0,
-      "mean_out_tokens": 97.0,
-      "n_solves": 1
+      "mean_turns_to_solve": 3.6,
+      "mean_out_tokens": 141.8,
+      "n_solves": 5
     },
     "A|test-transfer": {
-      "mean_turns_to_solve": 0.0,
-      "mean_out_tokens": 0.0,
-      "n_solves": 0
+      "mean_turns_to_solve": 3.6,
+      "mean_out_tokens": 142.2,
+      "n_solves": 5
     }
   },
   "sample_efficiency_curve": {
