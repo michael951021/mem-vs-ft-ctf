@@ -72,21 +72,24 @@ def build_local_envs(challenge_ids, workroot):
     return [LocalEnv(d[cid], workroot=workroot) for cid in challenge_ids]
 
 
-def default_schedule():
-    """Return (train_ids, test_indist_ids, transfer_ids) for the local suite.
+def default_schedule(suite="easy"):
+    """Return (train_ids, test_indist_ids, transfer_ids) for the chosen tier.
     Train on the first surface(s) of each parent; hold out one same-family item
-    for in-distribution test where available, and the sibling surface for
-    transfer."""
-    from env.local_suite.challenges import TRANSFER_SPLITS
+    for in-distribution test (an explicit 'indist' surface when the split
+    provides one, else the last train item, else the trained surface for a tiny
+    single-surface parent); the sibling surface is transfer."""
+    from env.local_suite.challenges import TRANSFER_SPLITS, HARD_SPLITS
+    splits = HARD_SPLITS if suite == "hard" else TRANSFER_SPLITS
     train, indist, transfer = [], [], []
-    for parent, sp in TRANSFER_SPLITS.items():
-        tr = sp["train"]
-        # in-distribution test = last train item held out if >1, else reuse
-        if len(tr) > 1:
+    for parent, sp in splits.items():
+        tr = list(sp["train"])
+        if sp.get("indist"):
+            train += tr; indist += list(sp["indist"])
+        elif len(tr) > 1:
             train += tr[:-1]; indist += tr[-1:]
         else:
-            train += tr; indist += tr  # tiny suite: eval on the trained surface
-        transfer += sp["transfer"]
+            train += tr; indist += tr
+        transfer += list(sp["transfer"])
     return train, indist, transfer
 
 
@@ -139,6 +142,8 @@ def main():
                     help="path to a frozen memory json to evaluate (skips its training)")
     ap.add_argument("--eval-only", action="store_true",
                     help="skip the TRAIN phase; evaluate the (loaded) frozen memory")
+    ap.add_argument("--suite", default="easy", choices=["easy", "hard"],
+                    help="challenge tier: easy (at-ceiling baseline) or hard (chained)")
     args = ap.parse_args()
     arm_label = args.arm_label or args.arm
 
@@ -146,7 +151,7 @@ def main():
               f"-s{args.seed}{('-' + args.tag) if args.tag else ''}")
     random.seed(args.seed)
 
-    train_ids, indist_ids, transfer_ids = default_schedule()
+    train_ids, indist_ids, transfer_ids = default_schedule(args.suite)
     rng = random.Random(args.seed)
     rng.shuffle(train_ids)  # seed controls training order (sample-efficiency curve)
 
@@ -156,7 +161,7 @@ def main():
         "arm": arm_label, "base_arm": args.arm, "eval_only": args.eval_only,
         "load_memory": args.load_memory,
         "seed": args.seed, "benchmark": args.benchmark,
-        "model": args.model, "mock": args.mock, "max_turns": args.max_turns,
+        "model": args.model, "mock": args.mock, "suite": args.suite, "max_turns": args.max_turns,
         "llm": {"num_ctx": args.num_ctx, "num_predict": args.num_predict,
                 "temperature": cfg.temperature, "top_p": cfg.top_p},
         "schedule": {"train": train_ids, "test_indist": indist_ids,

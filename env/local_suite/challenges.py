@@ -260,7 +260,8 @@ def all_challenges() -> list[Challenge]:
 
 
 def by_id() -> dict[str, Challenge]:
-    return {c.id: c for c in all_challenges()}
+    """All challenges (easy + hard); ids are unique across tiers."""
+    return {c.id: c for c in all_challenges() + hard_challenges()}
 
 
 # Transfer protocol splits (brief: train on surface X, eval on sibling surface Y
@@ -274,6 +275,55 @@ TRANSFER_SPLITS = {
     "crypto/xor":      {"train": ["xor-single"], "transfer": ["xor-repeat"]},
     "forensics/recover": {"train": ["for-strings", "for-grep"], "transfer": ["for-split"]},
     "reversing/constant": {"train": ["rev-logic"], "transfer": ["rev-arith"]},
+}
+
+
+# ================================================================= HARD TIER
+# The easy tier above is at-ceiling for a strong base model, so it measures the
+# null regime of H1. The hard tier creates headroom: CHAINED mechanisms where a
+# model often fails cold but a single transferable playbook bullet ("peel the
+# outer encoding, then recover the single-byte XOR key via the 'picoCTF' known
+# plaintext") should unlock sibling surfaces. Separate registry + schedule so it
+# never disturbs the easy-tier runs. Select with run_experiment --suite hard.
+
+def _chain(outer: str, key: int, flag: str):
+    """Return the challenge bytes: flag -> XOR(single byte) -> outer-encode."""
+    xored = bytes(b ^ key for b in flag.encode())
+    if outer == "b64":
+        return base64.b64encode(xored)
+    if outer == "b32":
+        return base64.b32encode(xored)
+    if outer == "hex":
+        return xored.hex().encode()
+    raise ValueError(outer)
+
+
+def _c_chain(outer: str, key: int, cid: str, flag_body: str) -> Challenge:
+    flag = f"{FLAG_PREFIX}{{{flag_body}}}"
+    enc = _chain(outer, key, flag)
+    name = {"b64": "base64", "b32": "base32", "hex": "hex"}[outer]
+    def setup(d):
+        _w(os.path.join(d, "payload.txt"), enc.decode() + "\n")
+    return Challenge(
+        cid, f"crypto/chain-{outer}",
+        f"payload.txt is {name}-encoded, and the DECODED bytes are the flag XORed "
+        f"with one unknown byte. Two layers: decode, then undo the XOR. The "
+        f"plaintext starts with 'picoCTF{{'.",
+        setup, flag, f"{name}-decode then single-byte XOR via known plaintext")
+
+
+def hard_challenges() -> list[Challenge]:
+    return [
+        _c_chain("b64", 0x5A, "chain-b64xor", "p33l_th3n_x0r_b64"),
+        _c_chain("b32", 0x5A, "chain-b32xor", "p33l_th3n_x0r_b32"),
+        _c_chain("hex", 0x5A, "chain-hexxor", "p33l_th3n_x0r_hex"),
+    ]
+
+
+HARD_SPLITS = {
+    # train on base64-chain; hold out base32-chain in-dist; transfer to hex-chain
+    "crypto/chain": {"train": ["chain-b64xor"], "transfer": ["chain-hexxor"],
+                     "indist": ["chain-b32xor"]},
 }
 
 
