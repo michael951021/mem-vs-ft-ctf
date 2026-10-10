@@ -11,12 +11,19 @@ SEEDS="${SEEDS:-0 1 2}"
 ARMS="${ARMS:-A B C D}"
 export CTF_WORKROOT="${CTF_WORKROOT:-$(mktemp -d)}"
 echo "pilot start $(date -Is)  model=$MODEL seeds='$SEEDS' arms='$ARMS' out=$OUT workroot=$CTF_WORKROOT"
+harvest() {  # aggregate + figures + inject report numbers from logged data
+  $PY -m scripts.analyze --glob '*pilot*' >/dev/null 2>&1 || true
+  $PY -m scripts.make_figures >/dev/null 2>&1 || true
+  $PY -m scripts.render_report --inject >/dev/null 2>&1 || true
+  $PY -m scripts.audit_redaction >/dev/null 2>&1 || true
+}
 for s in $SEEDS; do
   for a in $ARMS; do
     echo "=== $(date -Is) arm=$a seed=$s ==="
     $PY -m harness.run_experiment --arm "$a" --seed "$s" --model "$MODEL" \
         --out "$OUT" --max-turns 15 --num-ctx 4096 --num-predict 384 --tag pilot \
         || echo "!! arm=$a seed=$s FAILED (continuing)"
+    harvest   # keep results/ + REPORT.md §5 current after every arm
   done
 done
 echo "pilot done $(date -Is)"
