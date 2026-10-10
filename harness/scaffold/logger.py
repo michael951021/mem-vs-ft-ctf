@@ -70,8 +70,14 @@ class RunLogger:
             f.flush()
             os.fsync(f.fileno())
 
-    def save_raw(self, challenge_id: str, seed: int, transcript: dict):
-        """Full turn-by-turn transcript for audit/provenance (gitignored)."""
-        path = os.path.join(self.run_dir, "raw", f"{challenge_id}_s{seed}.json")
+    def save_raw(self, challenge_id: str, seed: int, transcript: dict,
+                 split: str = ""):
+        """Full turn-by-turn transcript for audit/provenance (gitignored).
+
+        The split is part of the filename so a challenge that appears in more
+        than one split (e.g. a single-surface parent whose train surface is also
+        the in-distribution test) does not overwrite its own earlier transcript."""
+        tag = f"{challenge_id}_s{seed}" + (f"_{split}" if split else "")
+        path = os.path.join(self.run_dir, "raw", f"{tag}.json")
         with open(path, "w") as f:
             json.dump(transcript, f, indent=2)

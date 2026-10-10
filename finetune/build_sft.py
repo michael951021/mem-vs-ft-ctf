@@ -39,13 +39,21 @@ def _eval_challenge_ids():
     return ids, descs
 
 
-def iter_verified_train(runs_dir, pat):
+def iter_verified_train(runs_dir, pat, source_arm):
     for raw in sorted(glob.glob(os.path.join(runs_dir, pat, "raw", "*.json"))):
         with open(raw) as f:
             t = json.load(f)
         meta = t.get("meta", {})
         if meta.get("split") != "train" or not t.get("success"):
             continue
+        if source_arm and meta.get("arm") not in (source_arm, None):
+            continue
+        # decontamination is only sound if we can identify the challenge; a raw
+        # transcript without challenge_id must abort, never silently pass.
+        if not meta.get("challenge_id"):
+            raise ValueError(
+                f"{raw}: raw transcript has no challenge_id; cannot decontaminate "
+                f"safely. Re-run the pilot with the fixed driver before building SFT.")
         yield t
 
 
@@ -91,17 +99,33 @@ def main():
     ap.add_argument("--out", default="finetune/data")
     ap.add_argument("--split-by-family", action="store_true",
                     help="also write one corpus per parent mechanism (for transfer SFT)")
+    ap.add_argument("--source-arm", default="A",
+                    help="which arm's verified TRAIN trajectories to train on "
+                         "(default A: the no-memory base experience; '' = all arms)")
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
     decontam_ids, decontam_descs = _eval_challenge_ids()
     log, all_recs = [], []
-    for blob in iter_verified_train(args.runs, args.glob):
+    for blob in iter_verified_train(args.runs, args.glob, args.source_arm):
         all_recs.extend(build_examples(blob, decontam_ids, decontam_descs, log))
 
-    # final audit: zero flaggy records may be written
-    leaks = [r for r in all_recs if any(contains_flagish(m["content"]) for m in r["messages"])]
+    # final audit: zero flaggy records may be written. We scan the model/
+    # challenge-derived messages (user + assistant). The system message is a
+    # fixed, authored template whose only brace is a generic format hint
+    # ("picoCTF{...}"), audited once here and never challenge-specific.
+    def _flaggy(rec):
+        return any(contains_flagish(m["content"]) for m in rec["messages"]
+                   if m["role"] != "system")
+    leaks = [r for r in all_recs if _flaggy(r)]
     assert not leaks, f"{len(leaks)} SFT records still contain flag-shaped text!"
+    # the system template itself must carry no real flag, only the generic hint:
+    # a match is a placeholder iff its interior has no alphanumerics (real flags do)
+    from harness.scaffold.react_agent import SYSTEM_PROMPT
+    import re as _re
+    sys_flags = _re.findall(r"(?:picoCTF|flag)\{+([^{}]*)\}+", SYSTEM_PROMPT)
+    bad = [m for m in sys_flags if _re.search(r"[A-Za-z0-9]", m)]
+    assert not bad, f"system prompt contains a non-placeholder flag interior: {bad}"
 
     out_all = os.path.join(args.out, "sft_all.jsonl")
     with open(out_all, "w") as f:

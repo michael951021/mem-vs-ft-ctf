@@ -108,9 +108,12 @@ def run_attempt(agent, env, memory, logger, meta, frozen):
         notes=meta.get("notes", ""),
     )
     logger.log(attempt)
+    raw_meta = {**meta, "challenge_id": env.challenge_id,
+                "mechanism_family": getattr(env, "mechanism_family", None)}
     logger.save_raw(env.challenge_id, meta["seed"],
-                    {"meta": meta, "trajectory": res.trajectory,
-                     "submitted": res.submitted_flags, "success": res.success})
+                    {"meta": raw_meta, "trajectory": res.trajectory,
+                     "submitted": res.submitted_flags, "success": res.success},
+                    split=meta["split"])
     if hasattr(env, "cleanup"):
         env.cleanup()
     return res
