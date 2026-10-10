@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+runs/**/raw/
+*.gguf
+*.safetensors
+finetune/adapters/
+benchmarks/**/data/
+.env
+*.log
