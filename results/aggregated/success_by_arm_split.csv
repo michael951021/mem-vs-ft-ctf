@@ -2,3 +2,12 @@ arm,split,success_rate,n
 A,train,1.0000,1
 A,test-indist,1.0000,1
 A,test-transfer,1.0000,1
+B,train,1.0000,1
+B,test-indist,1.0000,1
+B,test-transfer,1.0000,1
+C,train,1.0000,1
+C,test-indist,1.0000,1
+C,test-transfer,1.0000,1
+D,train,1.0000,1
+D,test-indist,1.0000,1
+D,test-transfer,1.0000,1

@@ -1,0 +1,12 @@
+{
+  "name": "episodic",
+  "k": 3,
+  "episodes": [
+    {
+      "family": "crypto/chain-b64",
+      "challenge_id": "chain-b64xor",
+      "desc": "payload.txt is base64-encoded, and the DECODED bytes are the flag XORed with one unknown byte. Two layers: decode, then undo the XOR. The plaintext starts with '[REDACTED_FLAG].",
+      "summary": "Solved by: read(payload.txt); shell(python3 -c \"); shell(python3 -c \"import base64; d=base64.b64decode(open('payload.txt').read().strip()); k=d[0]^ord('p'); print(bytes(b^k for b in d).decode())\"); submit([REDACTED_FLAG])"
+    }
+  ]
+}

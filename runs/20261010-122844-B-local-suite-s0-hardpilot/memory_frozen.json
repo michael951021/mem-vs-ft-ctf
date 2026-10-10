@@ -1,0 +1,16 @@
+{
+  "name": "raw-icl",
+  "k": 3,
+  "demos": [
+    {
+      "family": "crypto/chain-b64",
+      "challenge_id": "chain-b64xor",
+      "lines": [
+        "- read: payload.txt",
+        "- shell: python3 -c \"",
+        "- shell: python3 -c \"import base64; d=base64.b64decode(open('payload.txt').read().strip()); k=d[0]^ord('p'); print(bytes(b^k for b in d).decode())\"",
+        "- submit: [REDACTED_FLAG]"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "playbook-ace",
+  "hierarchical": true,
+  "bullets": [
+    {
+      "text": "For crypto/chain: inspect inputs, derive, then submit. Typical tool path: read -> shell -> submit.",
+      "family": "crypto/chain-b64",
+      "uses": 0,
+      "wins": 0,
+      "created_from": "chain-b64xor"
+    }
+  ]
+}

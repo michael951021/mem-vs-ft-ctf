@@ -1,7 +1,8 @@
 {
-  "n_attempts": 15,
+  "n_attempts": 26,
   "arms": [
-    "A"
+    "A",
+    "B"
   ],
   "seeds": [
     0
@@ -18,11 +19,52 @@
     "A|test-transfer": {
       "rate": 1.0,
       "n": 5
+    },
+    "B|train": {
+      "rate": 1.0,
+      "n": 5
+    },
+    "B|test-indist": {
+      "rate": 1.0,
+      "n": 5
+    },
+    "B|test-transfer": {
+      "rate": 1.0,
+      "n": 1
     }
   },
-  "H1_advantage_over_A": {},
-  "H2_transfer_retention": {},
-  "H1b_turns_saved_vs_A": {},
+  "H1_advantage_over_A": {
+    "B": {
+      "n_pairs": 5,
+      "n_clusters": 5,
+      "advantage": 0.0,
+      "ci_lo": 0.0,
+      "ci_hi": 0.0
+    }
+  },
+  "H2_transfer_retention": {
+    "B": {
+      "adv_indist": 0.0,
+      "adv_transfer": 0.0,
+      "retention": null
+    }
+  },
+  "H1b_turns_saved_vs_A": {
+    "B|test-indist": {
+      "n_pairs": 5,
+      "n_clusters": 5,
+      "turns_saved_vs_A": 1.0,
+      "ci_lo": 0.2,
+      "ci_hi": 1.8
+    },
+    "B|test-transfer": {
+      "n_pairs": 1,
+      "n_clusters": 1,
+      "turns_saved_vs_A": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0
+    }
+  },
   "efficiency": {
     "A|test-indist": {
       "mean_turns_to_solve": 3.6,
@@ -33,10 +75,27 @@
       "mean_turns_to_solve": 3.6,
       "mean_out_tokens": 142.2,
       "n_solves": 5
+    },
+    "B|test-indist": {
+      "mean_turns_to_solve": 2.6,
+      "mean_out_tokens": 79.0,
+      "n_solves": 5
+    },
+    "B|test-transfer": {
+      "mean_turns_to_solve": 3.0,
+      "mean_out_tokens": 154.0,
+      "n_solves": 1
     }
   },
   "sample_efficiency_curve": {
     "A": [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0
+    ],
+    "B": [
       1.0,
       2.0,
       3.0,

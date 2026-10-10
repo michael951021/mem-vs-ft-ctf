@@ -1,0 +1,22 @@
+arm: D
+base_arm: D
+eval_only: false
+load_memory: null
+seed: 0
+benchmark: local-suite
+model: qwen-agent:latest
+mock: false
+suite: hard
+max_turns: 18
+llm:
+  num_ctx: 4096
+  num_predict: 512
+  temperature: 0.0
+  top_p: 1.0
+schedule:
+  train:
+  - chain-b64xor
+  test_indist:
+  - chain-b32xor
+  transfer:
+  - chain-hexxor
