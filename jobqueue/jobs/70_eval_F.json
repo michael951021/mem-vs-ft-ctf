@@ -3,6 +3,7 @@
   "depends_on": ["import-E-ollama"],
   "needs_gpu_free_mb": 9000,
   "est_minutes": 40,
-  "cmd": [".venv/bin/python", "-m", "harness.run_experiment", "--arm", "D", "--arm-label", "F", "--eval-only", "--load-memory", "FILL_IN_playbook_from_7B_D_seed0.json", "--model", "qwen7b-ftE", "--seed", "0", "--out", "runs", "--tag", "h3"],
-  "note": "Arm F = hybrid: fine-tuned weights + frozen ACE playbook from the 7B arm-D pilot. Point --load-memory at runs/<7B-D-s0>/memory_frozen.json."
+  "cmd": ["bash", "-lc", "F=$(ls -d runs/*-D-local-suite-s0-h3base 2>/dev/null | tail -1)/memory_frozen.json; test -f \"$F\" || { echo \"no frozen 7B arm-D playbook at $F\"; exit 3; }; echo \"arm F using playbook: $F\"; .venv/bin/python -m harness.run_experiment --arm D --arm-label F --eval-only --load-memory \"$F\" --model qwen7b-ftE --seed 0 --out runs --tag h3"],
+  "cwd": ".",
+  "note": "Arm F = hybrid: fine-tuned weights (qwen7b-ftE) + the frozen ACE playbook from the 7B arm-D seed-0 pilot, path resolved at runtime. Tag h3."
 }

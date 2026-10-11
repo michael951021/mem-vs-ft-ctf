@@ -1,0 +1,7 @@
+{
+  "id": "install-train-deps",
+  "needs_gpu_free_mb": 0,
+  "est_minutes": 8,
+  "cmd": [".venv/bin/pip", "install", "-q", "-r", "finetune/requirements-train.txt"],
+  "note": "Host-only QLoRA stack (torch/transformers/peft/bitsandbytes/trl). CPU+network only; no-op if already satisfied. Required by qlora-E."
+}

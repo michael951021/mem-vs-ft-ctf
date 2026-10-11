@@ -2,9 +2,8 @@
   "id": "pilot-7b-ABCD",
   "depends_on": ["pull-base-7b"],
   "needs_gpu_free_mb": 9000,
-  "est_minutes": 120,
-  "cmd": ["bash", "scripts/run_pilot.sh"],
+  "est_minutes": 90,
+  "cmd": ["bash", "-lc", "MODEL=qwen2.5:7b-instruct TAG=h3base OUT=runs SEEDS='0 1' ARMS='A B C D' bash scripts/run_pilot.sh"],
   "cwd": ".",
-  "env_note": "set MODEL=qwen2.5:7b-instruct SEEDS='0 1 2' ARMS='A B C D' OUT=runs before running",
-  "note": "Re-run arms A-D on the matched 7B base so every arm (incl. QLoRA E/F) shares one frozen base. Writes runs/*-s*-pilot plus frozen playbook per seed."
+  "note": "Matched-base re-run of arms A-D on the frozen 7B (Qwen2.5-7B-Instruct) so every arm incl. QLoRA E/F shares one base. Isolated under tag h3base -> runs/*-h3base + results/summary_h3base.json; never touches the committed 27B *-pilot / summary.json. 2 seeds for a fast result (seed 0 feeds the full E/F chain)."
 }

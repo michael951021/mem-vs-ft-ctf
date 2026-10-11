@@ -3,6 +3,6 @@
   "depends_on": ["eval-E", "eval-F"],
   "needs_gpu_free_mb": 0,
   "est_minutes": 3,
-  "cmd": ["bash", "-c", ".venv/bin/python -m scripts.analyze --glob '*' && .venv/bin/python -m scripts.make_figures"],
-  "note": "Re-aggregate all arms (A-F) incl. compute-matched H3, regenerate figures + results/summary.json."
+  "cmd": ["bash", "-lc", ".venv/bin/python -m scripts.analyze --glob '*-h3*' --summary-out results/summary_h3.json"],
+  "note": "Aggregate the matched-base H3 family only (A-D from *-h3base + E/F from *-h3) into results/summary_h3.json -- the memory(D) vs weights(E) vs hybrid(F) comparison on one shared 7B base. Kept separate from the committed 27B summary.json/figures; H3 figures + REPORT section rendered separately after review."
 }
