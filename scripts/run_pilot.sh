@@ -4,7 +4,7 @@
 # Writes incrementally to runs/; safe to harvest partial data at any time.
 set -u
 cd "$(dirname "$0")/.."
-PY=.venv/bin/python
+PY="${PY:-.venv/bin/python}"
 OUT="${OUT:-runs}"
 MODEL="${MODEL:-qwen-agent:latest}"
 SEEDS="${SEEDS:-0 1 2}"

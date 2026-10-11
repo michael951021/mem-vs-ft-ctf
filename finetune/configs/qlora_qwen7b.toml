@@ -1,0 +1,20 @@
+# QLoRA config for arm E/F: fine-tune the SAME frozen 7B base the memory arms
+# (A-D) are piloted on, on the decontaminated+redacted SFT corpus built from the
+# 7B pilot's verified TRAIN solves. Compute-matched comparison vs the ACE playbook.
+[model]
+name = "qwen2.5:7b-instruct"          # Ollama tag the memory arms use (label)
+hf_name = "Qwen/Qwen2.5-7B-Instruct"  # HF id for 4-bit load in training
+approx_params_b = 7
+
+[lora]
+r = 16
+alpha = 32
+dropout = 0.05
+target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+
+[train]
+epochs = 3
+batch_size = 1
+grad_accum = 8
+lr = 2e-4
+seq_len = 1024
