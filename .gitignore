@@ -9,3 +9,5 @@ jobqueue/state.json
 *.gguf
 *.safetensors
 .claude/settings.local.json
+.tools/
+.venv-gpu/

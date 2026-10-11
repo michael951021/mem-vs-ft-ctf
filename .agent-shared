@@ -1,0 +1,5 @@
+# Gitignored runtime data shared with parallel worktrees (see ../../agent shared_binds).
+.tools
+.venv-gpu
+finetune/adapters
+finetune/data
