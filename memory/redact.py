@@ -13,9 +13,15 @@ from __future__ import annotations
 
 import re
 
+# A real CTF flag body has no quotes, whitespace, or braces (e.g.
+# picoCTF{s3cr3t_v4lue}). Requiring a clean, non-empty body avoids matching a
+# bare format-prefix crib such as picoCTF{' inside prose (which the greedy [^}]*
+# would otherwise swallow up to the next brace) while still catching every real
+# flag value -- the only thing the ethics gate must redact.
+_BODY = r"[^}'\"\s{]+"
 _FLAG_RES = [
-    re.compile(r"\b(?:picoCTF|flag|FLAG|CTF|ctf|HTB|htb)\{[^}]*\}"),
-    re.compile(r"\bpico\{[^}]*\}"),
+    re.compile(r"\b(?:picoCTF|flag|FLAG|CTF|ctf|HTB|htb)\{" + _BODY + r"\}"),
+    re.compile(r"\bpico\{" + _BODY + r"\}"),
 ]
 PLACEHOLDER = "[REDACTED_FLAG]"
 

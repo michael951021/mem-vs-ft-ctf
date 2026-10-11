@@ -1,0 +1,34 @@
+arm: C
+base_arm: C
+eval_only: false
+load_memory: null
+seed: 0
+benchmark: local-suite
+model: qwen-agent:latest
+mock: false
+suite: easy
+max_turns: 15
+llm:
+  num_ctx: 4096
+  num_predict: 384
+  temperature: 0.0
+  top_p: 1.0
+schedule:
+  train:
+  - xor-single
+  - cls-caesar
+  - enc-base64
+  - rev-logic
+  - for-strings
+  test_indist:
+  - enc-hex
+  - cls-caesar
+  - xor-single
+  - for-grep
+  - rev-logic
+  transfer:
+  - enc-base32
+  - cls-atbash
+  - xor-repeat
+  - for-split
+  - rev-arith

@@ -18,6 +18,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from scripts.analyze import (load_rows, success_rate, paired_advantage,
+                             paired_turns_advantage,
                              transfer_retention, sample_efficiency, SPLITS,
                              ARMS_ORDER)
 
@@ -118,12 +119,50 @@ def fig_retention(rows):
     plt.close(fig)
 
 
+def fig_turns_saved(rows):
+    """The informative figure in the ceiling regime: turns saved vs A on
+    jointly-solved tasks, per arm, for in-dist and transfer, with bootstrap CIs."""
+    arms = [a for a in _arms(rows) if a != "A"]
+    splits = ["test-indist", "test-transfer"]
+    if not arms:
+        return
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    w = 0.8 / len(splits)
+    any_pair = False
+    for si, s in enumerate(splits):
+        xs, ys, los, his = [], [], [], []
+        for i, a in enumerate(arms):
+            ta = paired_turns_advantage(rows, a, s)
+            if not ta["n_pairs"]:
+                continue
+            any_pair = True
+            xs.append(i + si * w); ys.append(ta["turns_saved_vs_A"])
+            los.append(ta["turns_saved_vs_A"] - ta["ci_lo"])
+            his.append(ta["ci_hi"] - ta["turns_saved_vs_A"])
+        if xs:
+            ax.bar(xs, ys, width=w, yerr=[los, his], capsize=4,
+                   color=plt.cm.Greys(0.35 + 0.3 * si), edgecolor="white",
+                   label={"test-indist": "in-dist", "test-transfer": "transfer"}[s])
+    if not any_pair:
+        plt.close(fig); return
+    ax.axhline(0, color="#333", lw=0.8)
+    ax.set_xticks([i + w / 2 for i in range(len(arms))])
+    ax.set_xticklabels([f"Arm {a}" for a in arms])
+    ax.set_ylabel("turns saved vs Arm A (paired)")
+    ax.set_title("Step-efficiency: turns saved vs no-memory baseline\n"
+                 "(jointly-solved tasks; clustered bootstrap 95% CI)")
+    ax.legend(frameon=False, fontsize=8); ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout(); fig.savefig(f"{OUT}/fig5_turns_saved.png", dpi=150)
+    plt.close(fig)
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     rows = load_rows("runs", "*")
     if not rows:
         print("no data yet; figures skipped"); return
     fig_success(rows); fig_h1(rows); fig_efficiency(rows); fig_retention(rows)
+    fig_turns_saved(rows)
     print(f"wrote figures to {OUT}/ from {len(rows)} attempts")
 
 

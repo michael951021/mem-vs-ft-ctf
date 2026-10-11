@@ -1,11 +1,15 @@
 {
-  "n_artifacts_scanned": 4,
+  "n_artifacts_scanned": 12,
   "n_leaks": 0,
   "leak_sources": [],
-  "spot_check_fraction": 0.25,
+  "spot_check_fraction": 0.167,
   "spot_check_sample": [
     {
-      "src": "runs/20261010-122859-B-local-suite-s0-pilot/memory_frozen.json",
+      "src": "runs/20261010-122844-B-local-suite-s0-hardpilot/memory_frozen.json",
+      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": [\n    {\n      \"family\": \"crypto/chain-b64\",\n      \"challenge_id\": \"chain-b64xor\",\n      \"lines\": [\n        \"- read: payload.txt\",\n        \"- shell: python3 -c \\\"\",\n        \"- shell: python3 -c \\\"import base64; d=base64.b64decode(open('payload.txt').read()."
+    },
+    {
+      "src": "runs/20261010-143123-B-local-suite-s1-pilot/memory_frozen.json",
       "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": [\n    {\n      \"family\": \"crypto/xor-single\",\n      \"challenge_id\": \"xor-single\",\n      \"lines\": [\n        \"- shell: ls -la && xxd cipher.bin | head\",\n        \"- shell: python3 -c \\\"\",\n        \"- shell: python3 -c \\\"data=open('cipher.bin','rb').read(); key="
     }
   ]

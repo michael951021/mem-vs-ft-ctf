@@ -83,3 +83,25 @@ pilot on the local suite against the resident model.
 Pilot writes to `runs/*-pilot`. On resume: `tail /tmp/claude-1000/pilot.log`;
 `.venv/bin/python -m scripts.analyze --glob '*pilot*'` then `make_figures` +
 `render_report --inject`. If a GPU is free: `.venv/bin/python -m jobqueue.runner run`.
+
+### 2026-10-10 — Phase 1 COMPLETE: easy 3-seed matrix + hard tier measured
+- **Easy pilot done (all 3 seeds, 180 attempts)** + **hard tier done (12 attempts)**.
+- **Success: at ceiling** — every arm solves every challenge, all seeds, both tiers
+  (the strong resident 27B needs no help). H1/H2 as *success* hypotheses are
+  therefore untestable on this suite → the powered success test is the staged
+  weaker-7B / InterCode runs.
+- **Step-efficiency (H1b), 3 seeds × 5 challenges, clustered bootstrap:**
+  in-dist B,C = +1.00 turn saved [CI +0.20,+1.80] (excludes 0); D = +0.40
+  [+0.00,+1.20] (touches 0). Transfer: only C borderline (+0.40 [+0.00,+0.80]);
+  B and D null. ⇒ **B ≈ C > D**, the OPPOSITE of H1's D≥C≥B; H2 unsupported.
+  A clean negative for the ACE-playbook arm *in the ceiling regime*.
+- **Ethics gate caught a (false-positive) flag-shape** in arm D's XOR playbook
+  bullet (the public crib `picoCTF{`); tightened the flag regex to require a
+  clean body (no quote/space/brace), so real flags are still redacted and the
+  crib prefix is not. Re-audit: 12 artifacts, 0 leaks, 17% spot-check.
+- **Two data-integrity bugs fixed earlier** (challenge_id in raw meta; split in
+  raw filename) — decontamination now sound.
+- Figures incl. `fig5_turns_saved.png` (headline). REPORT.md §5/§5.3 updated;
+  all numbers auto-traced to runs/.
+- **Still staged (GPU window):** weaker-7B matched A–D re-run + QLoRA E/F (H3) +
+  InterCode scale-up (`jobqueue/`). These give the *success* headroom this suite lacks.

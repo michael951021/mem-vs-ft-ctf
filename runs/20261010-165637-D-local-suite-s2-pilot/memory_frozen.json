@@ -1,0 +1,41 @@
+{
+  "name": "playbook-ace",
+  "hierarchical": true,
+  "bullets": [
+    {
+      "text": "For crypto/xor: use known-plaintext ('picoCTF{') to recover the XOR key. Typical tool path: shell -> submit.",
+      "family": "crypto/xor-single",
+      "uses": 0,
+      "wins": 0,
+      "created_from": "xor-single"
+    },
+    {
+      "text": "For crypto/classical: treat as a classical substitution; brute force the key/shift. Typical tool path: read -> shell -> submit.",
+      "family": "crypto/classical-caesar",
+      "uses": 0,
+      "wins": 0,
+      "created_from": "cls-caesar"
+    },
+    {
+      "text": "For forensics/recover: search the artifact for printable flag text. Typical tool path: shell -> submit.",
+      "family": "forensics/recover-strings",
+      "uses": 0,
+      "wins": 0,
+      "created_from": "for-strings"
+    },
+    {
+      "text": "For reversing/constant: read the source and invert the per-byte transform. Typical tool path: read -> shell -> submit.",
+      "family": "reversing/constant-rot13",
+      "uses": 0,
+      "wins": 0,
+      "created_from": "rev-logic"
+    },
+    {
+      "text": "For crypto/encoding: identify the encoding and decode it. Typical tool path: read -> shell -> submit.",
+      "family": "crypto/encoding-base64",
+      "uses": 0,
+      "wins": 0,
+      "created_from": "enc-base64"
+    }
+  ]
+}
