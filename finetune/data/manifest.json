@@ -1,0 +1,31 @@
+{
+  "n_records": 12,
+  "n_source_trajectories_verified_train": 1,
+  "decontamination": {
+    "eval_ids": [
+      "cls-atbash",
+      "cls-caesar",
+      "enc-base32",
+      "enc-hex",
+      "for-grep",
+      "for-split",
+      "rev-arith",
+      "rev-logic",
+      "xor-repeat",
+      "xor-single"
+    ],
+    "dropped": [
+      {
+        "dropped": "rev-logic",
+        "reason": "eval-challenge leak"
+      },
+      {
+        "dropped": "rev-logic",
+        "reason": "eval-challenge leak"
+      }
+    ]
+  },
+  "by_family": {
+    "crypto/encoding": 12
+  }
+}
