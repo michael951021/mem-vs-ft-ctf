@@ -44,10 +44,12 @@ oll(){ OLLAMA_HOST=$OLL ollama "$@"; }
 memstat(){
   local tag="${1:-}" avail_kb max_kb cur_kb
   avail_kb=$(awk '/^MemAvailable:/{print $2}' /proc/meminfo)
+  # "absent" (not "?"): cgroupfs is not mounted in the job sandbox, so a
+  # cgroup limit can't be the killer there; on the host the real value prints.
   max_kb=$(cat /sys/fs/cgroup/memory.max 2>/dev/null \
-           || cat /sys/fs/cgroup/memory/memory.limit_in_bytes 2>/dev/null || echo "?")
+           || cat /sys/fs/cgroup/memory/memory.limit_in_bytes 2>/dev/null || echo absent)
   cur_kb=$(cat /sys/fs/cgroup/memory.current 2>/dev/null \
-           || cat /sys/fs/cgroup/memory/memory.usage_in_bytes 2>/dev/null || echo "?")
+           || cat /sys/fs/cgroup/memory/memory.usage_in_bytes 2>/dev/null || echo absent)
   log "memstat[$tag] MemAvailable=${avail_kb:-0}kB cgroup_max=${max_kb} cgroup_current=${cur_kb}"
 }
 
@@ -69,9 +71,51 @@ mem_guard(){
   done
 }
 
+# Sum VmRSS (kB) over the process tree rooted at ROOT_PID, using only /proc
+# (the job sandbox has no ps). This is the memory trajectory that attributes
+# the next kill: samples ramping toward the cap across heartbeats point at the
+# memory killer; flat samples point at an external killer. PROC_DIR is
+# injectable for tests. ppid is field 4 of /proc/<pid>/stat, but field 2
+# (comm) may contain spaces/parens, so strip up to the LAST ')' first.
+tree_rss_kb(){
+  local root="$1" proc="${2:-/proc}"
+  local -A children=()
+  local d pid ppid
+  for d in "$proc"/[0-9]*/stat; do
+    [ -r "$d" ] || continue
+    pid="${d#"$proc"/}"; pid="${pid%%/*}"
+    ppid=$(sed 's/.*) //' "$d" 2>/dev/null | awk '{print $2}') || continue
+    [ -n "$ppid" ] || continue
+    children[$ppid]="${children[$ppid]:-} $pid"
+  done
+  local -a queue=("$root")
+  local -A seen=()
+  local total=0 p c rss
+  while [ ${#queue[@]} -gt 0 ]; do
+    p="${queue[0]}"; queue=("${queue[@]:1}")
+    [ -n "${seen[$p]:-}" ] && continue
+    seen[$p]=1
+    rss=$(awk '/^VmRSS:/{print $2}' "$proc/$p/status" 2>/dev/null)
+    [ -n "$rss" ] && total=$((total + rss))
+    for c in ${children[$p]:-}; do queue+=("$c"); done
+  done
+  echo "$total"
+}
+
+# One heartbeat: the 120s "job alive" line plus the process-tree RSS sample,
+# so a kill between steps is diagnosable from the trajectory in the job log.
+hb_once(){
+  local rss
+  rss=$(tree_rss_kb $$ 2>/dev/null)
+  echo "[gpu_job $(date +%T)] heartbeat (job alive) tree_rss_kb=${rss:-0}"
+}
+
 _on_exit(){
+  # Capture the exit code FIRST: anything run before reading $? (like killing
+  # the heartbeat) clobbers it, so the exit line used to report the kill's rc.
+  local rc=$?
   [ -n "$HB" ] && kill "$HB" 2>/dev/null
-  memstat "exit rc=$?"
+  memstat "exit rc=$rc"
   [ -n "$CTF_WORKROOT" ] && rm -rf "$CTF_WORKROOT"
 }
 
@@ -92,7 +136,7 @@ main(){
   # 15 min of no log output. Several steps here are legitimately silent for longer than
   # that -- the torch/bitsandbytes install, a long pilot arm, a QLoRA epoch. Emit a
   # job-wide heartbeat every 2 min so "slow but working" is never mistaken for wedged.
-  ( while :; do sleep 120; echo "[gpu_job $(date +%T)] heartbeat (job alive)"; done ) & HB=$!
+  ( while :; do sleep 120; hb_once; done ) & HB=$!
 
   memstat start
 

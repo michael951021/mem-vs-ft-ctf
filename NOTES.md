@@ -38,6 +38,24 @@ pilot passes in .tools/h3run.joblog 10-13; ~6 GPU re-runs burned).
 - h3run (separate ticket, merged 73f2097): est_gpu_hours placeholder still
   uncalibrated — needs first real train_meta.json.
 
+## Task: fix-h3run-ef9fad52 (Fix h3run: non-zero exit)
+3 of 4 runs 10-13 died T+16.3-18min at arm=C seed=1 start, NO exit trace
+(SIGKILL skips bash EXIT traps); 13:05 died the same way under the 64G cap
+(=> 48G-OOM theory refuted for it); output bytes/pace identical across runs
+(=> output-watchdog refuted). Leading cause still monolithic-pilot RSS
+accumulation (47.6G peak at arm C) — neutralized by per-cell isolation
+(240dfe7) but never yet run in production.
+- gpu_job.sh: `_on_exit` now captures rc=$? FIRST (pre-fix `kill $HB`
+  clobbered it: log L412 "exit rc=0" after `exit 2`); new tree_rss_kb
+  (sum VmRSS over /proc descendants, no ps) + heartbeat routed via hb_once
+  appending `tree_rss_kb=` => next kill: ramping = memory killer, flat =
+  external; memstat cgroup fallback `?` -> `absent`.
+- Verified: pre-fix acceptance 5 FAIL (gpu-job-exit-acceptance-prefix.log);
+  post-fix test_gpu_job_exit 6/6 + guard 6/6 + pilot_ckpt 0-fail
+  (-final.log, -regressions.log); real exit-2 with live HB logs rc=2.
+- Open: next real h3run is the true acceptance (no GPU in sandbox); watch
+  cell-peak lines + heartbeat RSS trajectory in .tools/h3run.joblog.
+
 ## Conventions
 - Loop jobs run "no agent" via lib/jobs.py; shared binds: .tools, .venv-gpu,
   finetune/adapters, finetune/data, ~/.cache/huggingface (53GB). Committed 27B
