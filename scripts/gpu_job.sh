@@ -29,6 +29,13 @@ B=qwen2.5:7b-instruct
 PY=.venv-gpu/bin/python
 UV=.tools/bin/uv
 HB=""   # heartbeat subshell pid, set in main, cleared in _on_exit
+# Pinned for a consistent CPU stack: torch 2.4.1 is built against the numpy 1.x ABI
+# (it fails to import under numpy 2), and datasets' pyarrow must match that numpy.
+# The first h3run venv got numpy 1.26.4 + pyarrow 26 (which needs numpy>=2) from
+# unpinned resolution -> `import datasets` ImportError -> QLoRA dead on arrival,
+# and the step-4b import check could never pass (uv saw all pins "satisfied").
+NUMPY_PIN=numpy==1.26.4
+PYARROW_PIN=pyarrow==18.1.0
 
 log(){ echo "[gpu_job $(date +%T)] $*"; }
 oll(){ OLLAMA_HOST=$OLL ollama "$@"; }
@@ -73,6 +80,14 @@ main(){
   export CTF_WORKROOT
   trap _on_exit EXIT
 
+  # The job's own stdout lives only in the host loop log, which agent sandboxes
+  # cannot read -- an OOM-kill here was undiagnosable for a week. Mirror the full
+  # log (memstat, heartbeat, child stderr/tracebacks) into the shared .tools bind.
+  DIAG=.tools/h3run.joblog
+  touch "$DIAG" 2>/dev/null || DIAG="$(mktemp)"
+  exec > >(tee -a "$DIAG") 2>&1
+  log "=== h3run job start pid=$$ diag=$DIAG ==="
+
   # The loop's GPU stall watchdog (JOB_STALL_GPU_MIN, default 15) kills a GPU job after
   # 15 min of no log output. Several steps here are legitimately silent for longer than
   # that -- the torch/bitsandbytes install, a long pilot arm, a QLoRA epoch. Emit a
@@ -91,17 +106,18 @@ main(){
     rm -rf .venv-gpu
     "$UV" venv --python 3.12 .venv-gpu \
       || { rm -rf .venv-gpu; "$UV" venv --python 3.12 .venv-gpu \
-      || { log "FATAL uv venv"; exit 2; }; }
+      || { log "FATAL uv venv rc=$?"; exit 2; }; }
   fi
-  "$UV" pip install --python "$PY" pyyaml numpy scipy matplotlib \
-    || { log "FATAL light deps"; exit 2; }
+  "$UV" pip install --python "$PY" pyyaml "$NUMPY_PIN" scipy matplotlib \
+    || { log "FATAL light deps rc=$?"; exit 2; }
   log "light deps ready"
 
   # 1) base 7B present on host Ollama (pull over shared-net if missing)
-  oll list 2>/dev/null | grep -q "$B" || { log "pulling $B"; oll pull "$B" || { log "FATAL pull"; exit 2; }; }
+  oll list 2>/dev/null | grep -q "$B" || { log "pulling $B"; oll pull "$B" || { log "FATAL pull rc=$?"; exit 2; }; }
   log "base model present"
 
   # 2) CORE: matched-base 7B pilot A-D (inference via host Ollama)
+  memstat pre-pilot
   PY="$PY" MODEL="$B" TAG=h3base OUT=runs SEEDS='0 1' ARMS='A B C D' \
     GLOB='*-h3base' SUMMARY=results/summary_h3base.json \
     bash scripts/run_pilot.sh || log "pilot had per-arm failures (partial runs kept)"
@@ -120,7 +136,7 @@ main(){
 
   # 4) CORE: SFT corpus from the 7B TRAIN solves only (*-h3base)
   "$PY" -m finetune.build_sft --runs runs --glob '*-h3base' --split-by-family --out finetune/data \
-    || { log "FATAL build_sft"; exit 2; }
+    || { log "FATAL build_sft rc=$?"; exit 2; }
   log "sft built"
 
   # 4b) HEAVY training deps -- only now, with CORE pilot + SFT already on disk.
@@ -135,7 +151,15 @@ main(){
     "$UV" pip install --python "$PY" \
       torch==2.4.1 transformers==4.44.2 peft==0.12.0 bitsandbytes==0.43.3 \
       trl==0.9.6 datasets==2.21.0 accelerate==0.33.0 \
-    || { log "FATAL heavy deps"; exit 2; }
+      "$NUMPY_PIN" "$PYARROW_PIN" \
+    || { log "FATAL heavy deps rc=$?"; exit 2; }
+  fi
+  # The import check is the source of truth, not the install: a satisfied install
+  # with an incompatible numpy/pyarrow pair would loop forever otherwise.
+  if ! "$PY" -c "import torch,transformers,peft,bitsandbytes,trl,datasets,accelerate" 2>"$DIAG.import-err"; then
+    { echo "FATAL heavy import check still failing after install:"; tail -5 "$DIAG.import-err"; } >>"$DIAG" 2>/dev/null
+    log "FATAL heavy import check (see $DIAG tail)"
+    exit 2
   fi
   memstat after-heavy-install
   log "heavy deps ready"
@@ -147,7 +171,7 @@ main(){
   mem_guard 16 600 || { log "FATAL host MemAvailable < 16GB before QLoRA after 10min wait (see memstat lines)"; exit 3; }
   "$PY" -m finetune.train_qlora --config finetune/configs/qlora_qwen7b.toml \
       --data finetune/data/sft_all.jsonl --arm E --out finetune/adapters/E-qwen7b --min-free-mb 15000 \
-    || { log "FATAL qlora train"; exit 2; }
+    || { log "FATAL qlora train rc=$?"; exit 2; }
   log "qlora trained (gpu-hours in finetune/adapters/E-qwen7b/train_meta.json)"
 
   # 6) BEST-EFFORT: merge adapter -> serve via Ollama -> eval E (weights) and F (weights+playbook).
@@ -174,7 +198,7 @@ PYMERGE
       test -f "$F" && "$PY" -m harness.run_experiment --arm D --arm-label F --eval-only \
            --load-memory "$F" --model qwen7b-ftE --seed 0 --out runs --tag h3
       log "E/F served + evaluated"
-    } || log "E/F serving/eval incomplete -- adapter + gpu-hours still recorded; serving needs import follow-up"
+    } || log "E/F serving/eval incomplete rc=$? -- adapter + gpu-hours still recorded; serving needs import follow-up"
   else
     log "skip E/F merge+serve: host MemAvailable < 32GB after 5min wait (merge peaks ~20GB); core intact"
   fi
