@@ -8,4 +8,4 @@
 > Compute jobs: (run: `CMD`) (gpu) (mem: GB) (cpus: N) (timeout: H) — lib/jobs.py runs them, no agent.
 
 - [ ] **H3 matched-base GPU run** — 7B pilot A-D + QLoRA-E, best-effort E/F serving; writes results/summary_h3.json (id: h3run) (run: `bash scripts/gpu_job.sh`) (gpu) (mem: 48) (cpus: 16) (timeout: 10h)
-- [ ] **Fix h3run: OOM (ran out of memory)** — auto-filed from the job log (id: fix-h3run-45f7fb3f) (after: -)
+- [x] **Fix h3run: OOM (ran out of memory)** — auto-filed from the job log (id: fix-h3run-45f7fb3f) (after: -)
