@@ -1,7 +1,7 @@
 arm,split,success_rate,n
-A,train,0.2500,20
-A,test-indist,0.3000,20
-A,test-transfer,0.6000,20
+A,train,0.2400,25
+A,test-indist,0.3200,25
+A,test-transfer,0.6000,25
 B,train,0.1000,20
 B,test-indist,0.4000,20
 B,test-transfer,0.6000,20

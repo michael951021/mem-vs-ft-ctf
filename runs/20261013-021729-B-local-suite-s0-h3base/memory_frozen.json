@@ -1,0 +1,19 @@
+{
+  "name": "raw-icl",
+  "k": 3,
+  "demos": [
+    {
+      "family": "reversing/constant-rot13",
+      "challenge_id": "rev-logic",
+      "lines": [
+        "- read: check.py",
+        "- read: SECRET",
+        "- read: check.py SECRET",
+        "- shell: python3 check.py cvpbPGS{e3nq_gur_f0hepr_yhxr} | grep CORRECT",
+        "- read: check.py SECRET",
+        "- shell: python3 -c \"import codecs; print(codecs.decode('cvpbPGS{e3nq_gur_f0hepr_yhxr}', 'rot13'))\"",
+        "- submit: [REDACTED_FLAG]"
+      ]
+    }
+  ]
+}
