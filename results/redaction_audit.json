@@ -1,11 +1,31 @@
 {
-  "n_artifacts_scanned": 46,
+  "n_artifacts_scanned": 51,
   "n_leaks": 0,
   "leak_sources": [],
   "spot_check_fraction": 0.196,
   "spot_check_sample": [
     {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:2",
+      "src": "runs/20261012-203105-B-local-suite-s0-h3base/memory_frozen.json",
+      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": [\n    {\n      \"family\": \"reversing/constant-rot13\",\n      \"challenge_id\": \"rev-logic\",\n      \"lines\": [\n        \"- read: check.py\",\n        \"- read: SECRET\",\n        \"- shell: python3 -c \\\"import codecs; print(codecs.decode('cvpbPGS{e3nq_gur_f0hepr_yhxr}',"
+    },
+    {
+      "src": "finetune/data/sft_all.jsonl:9",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "runs/20261010-143123-B-local-suite-s1-pilot/memory_frozen.json",
+      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": [\n    {\n      \"family\": \"crypto/xor-single\",\n      \"challenge_id\": \"xor-single\",\n      \"lines\": [\n        \"- shell: ls -la && xxd cipher.bin | head\",\n        \"- shell: python3 -c \\\"\",\n        \"- shell: python3 -c \\\"data=open('cipher.bin','rb').read(); key="
+    },
+    {
+      "src": "runs/20261010-124906-D-local-suite-s0-hardpilot/memory_frozen.json",
+      "preview": "{\n  \"name\": \"playbook-ace\",\n  \"hierarchical\": true,\n  \"bullets\": [\n    {\n      \"text\": \"For crypto/chain: inspect inputs, derive, then submit. Typical tool path: read -> shell -> submit.\",\n      \"family\": \"crypto/chain-b64\",\n      \"uses\": 0,\n      \"wins\": 0,\n      \"created_from\": \"chain-b64xor\"\n    "
+    },
+    {
+      "src": "runs/20261010-145713-C-local-suite-s1-pilot/memory_frozen.json",
+      "preview": "{\n  \"name\": \"episodic\",\n  \"k\": 3,\n  \"episodes\": [\n    {\n      \"family\": \"crypto/xor-single\",\n      \"challenge_id\": \"xor-single\",\n      \"desc\": \"cipher.bin is the flag XORed with a single unknown byte. Recover the flag (the plaintext starts with 'picoCTF{').\\nFiles in the working directory: cipher.bi"
+    },
+    {
+      "src": "finetune/data/sft_crypto_encoding.jsonl:5",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
@@ -13,31 +33,15 @@
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "runs/20261010-124906-D-local-suite-s0-hardpilot/memory_frozen.json",
-      "preview": "{\n  \"name\": \"playbook-ace\",\n  \"hierarchical\": true,\n  \"bullets\": [\n    {\n      \"text\": \"For crypto/chain: inspect inputs, derive, then submit. Typical tool path: read -> shell -> submit.\",\n      \"family\": \"crypto/chain-b64\",\n      \"uses\": 0,\n      \"wins\": 0,\n      \"created_from\": \"chain-b64xor\"\n    "
+      "src": "runs/20261010-122859-B-local-suite-s0-pilot/memory_frozen.json",
+      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": [\n    {\n      \"family\": \"crypto/xor-single\",\n      \"challenge_id\": \"xor-single\",\n      \"lines\": [\n        \"- shell: ls -la && xxd cipher.bin | head\",\n        \"- shell: python3 -c \\\"\",\n        \"- shell: python3 -c \\\"data=open('cipher.bin','rb').read(); key="
     },
     {
-      "src": "runs/20261010-123946-C-local-suite-s0-hardpilot/memory_frozen.json",
-      "preview": "{\n  \"name\": \"episodic\",\n  \"k\": 3,\n  \"episodes\": [\n    {\n      \"family\": \"crypto/chain-b64\",\n      \"challenge_id\": \"chain-b64xor\",\n      \"desc\": \"payload.txt is base64-encoded, and the DECODED bytes are the flag XORed with one unknown byte. Two layers: decode, then undo the XOR. The plaintext starts "
-    },
-    {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:10",
-      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
-    },
-    {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:9",
-      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+      "src": "runs/20261013-034507-C-local-suite-s0-h3base/memory_frozen.json",
+      "preview": "{\n  \"name\": \"episodic\",\n  \"k\": 3,\n  \"episodes\": [\n    {\n      \"family\": \"crypto/encoding-base64\",\n      \"challenge_id\": \"enc-base64\",\n      \"desc\": \"message.txt contains an encoded string. Decode it to recover the flag.\\nFiles in the working directory: message.txt\\nThe flag format is [REDACTED_FLAG]"
     },
     {
       "src": "finetune/data/sft_crypto_encoding.jsonl:3",
-      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
-    },
-    {
-      "src": "runs/20261012-203105-B-local-suite-s0-h3base/memory_frozen.json",
-      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": [\n    {\n      \"family\": \"reversing/constant-rot13\",\n      \"challenge_id\": \"rev-logic\",\n      \"lines\": [\n        \"- read: check.py\",\n        \"- read: SECRET\",\n        \"- shell: python3 -c \\\"import codecs; print(codecs.decode('cvpbPGS{e3nq_gur_f0hepr_yhxr}',"
-    },
-    {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:8",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     }
   ]
