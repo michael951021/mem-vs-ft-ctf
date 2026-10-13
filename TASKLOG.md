@@ -7,3 +7,7 @@
 - Goal: Fix h3run: OOM (ran out of memory)
 - Approach: Reconstructed the post-fix failure from shared-bind mtimes, reproduced the ImportError on the real venv, fixed venv + script pins, then verified with the script's own import check, a 12-row known-answer load_dataset on the real SFT corpus, a no-op run of the exact pinned install line, and the existing test suites.
 - Blockers: Job logs are host-only (loop bind exposes only .git + one lib file), so the 02:15/03:40 mid-pilot kills remain unverifiable from this sandbox — the new tee log makes the next such kill diagnosable; if it proves host-wide preemption it needs a separate loop-harness ticket.
+## Fix h3run: RuntimeError in train_qlora.py
+- Goal: Fix h3run: RuntimeError in train_qlora.py
+- Approach: Reproduced the job-log traceback via the script's real import block on the shared venv, installed the missing module, pinned it, and made the import check the actual training import chain; re-verified pre/post, bash -n, guard tests, and a no-op install.
+- Blockers: none
