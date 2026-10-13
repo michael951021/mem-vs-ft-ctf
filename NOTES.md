@@ -1,63 +1,58 @@
 # NOTES — current state
 
-## Task: fix-h3run-45f7fb3f (Fix h3run: OOM)
-h3run = `bash scripts/gpu_job.sh` (loop GPU job: gpu/mem:48/10h). It was OOM-killed
-before producing any CORE artifact (no `runs/*-h3base`, no SFT data, no adapter).
+## Task: fix-h3run-45f7fb3f (Fix h3run: OOM) — 2nd pass
+h3run = `bash scripts/gpu_job.sh` (loop GPU job, gpu/mem:48/10h). 1st-pass fix
+(split install + memstat/mem_guard + heartbeat) merged; job re-ran 3x on 10-13
+(00:05, 02:15, 03:40) and jobtriage still reported "OOM" at 04:00.
 
-### Diagnosis (evidence in state/tickets/fix-h3run-45f7fb3f.md)
-- Shared `.venv-gpu` had only the venv skeleton + `.lock`; uv cache held partial
-  torch/cudnn extractions (SIGKILL mid-install), then a ~15-min re-download cascade.
-- The pre-fix script installed the FULL ~4.5GB torch+CUDA stack first, before the
-  CORE pilot. Measured: that install peaks at 75.6 MB RSS — it cannot OOM a 48GB
-  cgroup by itself, so the kill was host-wide pressure/preemption during the long
-  install window. The script logged zero memory state → undiagnosable.
+### New root cause (2nd pass)
+00:05 run passed pilot + SFT (12 records) + heavy install (5.8GB venv, 00:28),
+then QLoRA died at its FIRST heavy import — before the 15GB HF weight download
+(no 10-13 blobs in shared HF cache). Reproduced here:
+`ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4`
+(venv held numpy 1.26.4 + pyarrow 26.0.0 — unpinned uv resolution; torch 2.4.1
+needs numpy 1.x, datasets 2.21's pyarrow 26 needs numpy 2 → unsatisfiable pair).
+Consequences: step-4b import check could never pass (uv saw pins "satisfied"),
+train_qlora.py:122 `from datasets import load_dataset` → clean exit 2 every run.
+The 02:15/03:40 runs died mid-pilot (before build_sft); job log is host-only
+(unreadable here) → undiagnosable. "oom-kill, code TERM" may be host-wide
+preemption (TERM ≠ OOM SIGKILL) or clean exits mislabeled by jobtriage.
 
-### Fix (scripts/gpu_job.sh)
-- Split install: light deps (pyyaml/numpy/scipy/matplotlib) before the CORE pilot;
-  heavy training stack (torch 2.4.1 + CUDA wheels + transformers/peft/bnb/trl/
-  datasets/accelerate) only after pilot + SFT are on disk. CORE lands first.
-- `memstat [tag]`: logs MemAvailable + cgroup max/current at start, post-pilot,
-  before/after heavy install, before QLoRA, before merge, and on exit (EXIT trap).
-- `mem_guard MIN_GB WAIT [MEMINFO]`: bounded wait until host MemAvailable >= MIN_GB.
-  Gates: 8GB/15min (warn only) before heavy install; 16GB/10min (FATAL exit 3)
-  before QLoRA (~10GB CPU peak); 32GB/5min (skip best-effort merge tail, ~20GB
-  CPU peak). All pre-existing tags/isolation/exit semantics unchanged.
-- Script is source-safe (main() guarded) so tests can call the helpers.
-- Ollama unload now verified with `oll ps` (warn if 7B still loaded pre-training).
-
-### Merge with master (49dca96)
-Master had edited the same two files in parallel (main-checkout edits, 3de2bd8).
-All of both sides kept:
-- Heartbeat (2-min "job alive" line) vs the loop's 15-min stall watchdog — moved
-  into main() (was top-level on master) so _on_exit kills it and sourcing for
-  tests stays side-effect free.
-- Import-based venv guard — applied to the LIGHT set at step 0 and the HEAVY set
-  at step 4b (master's single full-stack guard didn't fit the split design;
-  uv re-extracts exactly what is missing on a partial install).
-- `rm -rf .venv-gpu` before rebuild; `-q` dropped from uv installs (visible
-  install progress in the job log).
-- Ticket file: master's auto-filed ticket kept canonical; w1's diagnosis
-  appended under a provenance header (both verbatim).
+### Fix (this pass)
+- Shared .venv-gpu repaired: `uv pip install 'numpy<2' 'pyarrow<19'` →
+  pyarrow 18.1.0, numpy stays 1.26.4.
+- scripts/gpu_job.sh: explicit `NUMPY_PIN=numpy==1.26.4` +
+  `PYARROW_PIN=pyarrow==18.1.0` in light+heavy install lines (fresh builds can't
+  re-resolve the conflict); heavy import check is now the source of truth — on
+  failure it dumps the traceback tail to the diag file and exits 2.
+- Diagnosability: main() tees the FULL job log (memstat, heartbeat, child
+  stderr) to shared bind `.tools/h3run.joblog` (mktemp fallback) — the next
+  kill is readable from agent sandboxes; rc=$? on every FATAL line.
+- 1st-pass design unchanged (split install, mem_guard 16GB/600s QLoRA,
+  32GB/300s merge skip, 2-min heartbeat, oll unload verify).
 
 ### Verified here (no GPU/Ollama model in this sandbox)
-- `bash -n` rc 0.
-- `python3 -m scripts.tests.test_gpu_job_guard`: 6/6 PASS (known answers: pass at
-  >= threshold, fail below; fabricated meminfo). Failed 3/5 pre-fix (mem_guard
-  absent) — acceptance check ran first.
-- Real light-stack install from PyPI into scratch venv: rc 0, imports OK.
-  Heavy set previously resolved/installed to all wheels (exit 0) — evidence in
-  `.agent-evidence/h3run-install-rss.log`.
-- `python3 -m memory.tests.test_arms` still PASS.
+- bash -n rc 0; script source-safe (BASH_SOURCE guard).
+- Heavy 7-package import on REAL venv rc 0 (torch 2.4.1+cu121, datasets 2.21.0,
+  pyarrow 18.1.0/numpy 1.26.4) — .agent-evidence/h3run-2ndpass-acceptance.log.
+- Known answer: `load_dataset(json, finetune/data/sft_all.jsonl)` = 12 rows
+  (= manifest n_records), same log.
+- Script's exact pinned heavy-install line on real venv: no-op, rc 0.
+- `python3 -m scripts.tests.test_gpu_job_guard` 6/6 PASS;
+  `python3 -m memory.tests.test_arms` PASS.
 
-### Next box run (what to watch)
-- Job log should show memstat lines + periodic heartbeat lines; pilot completes
-  before the heavy download starts; plausible peak <= 30GB, so the 32GB merge
-  guard is non-binding unless external host pressure appears — which the logs
-  would now show.
+### Next box run (watch)
+- `.tools/h3run.joblog` now readable from sandbox → next kill is diagnosable;
+  check it if the job dies again.
+- Expect: pilot A-D → 12 SFT → heavy import passes → 15GB HF 7B download →
+  adapter in finetune/adapters/E-qwen7b + train_meta.json (measured gpu-hours).
+- If pilot-window kills recur with no memory fault in the tee log, file a
+  SEPARATE ticket (loop-harness preemption), per ticket Stop-when.
 
 ## Conventions
 - Loop jobs run "no agent" via lib/jobs.py; shared binds: .tools, .venv-gpu,
-  finetune/adapters, finetune/data. Committed 27B artifacts must never be touched.
+  finetune/adapters, finetune/data, ~/.cache/huggingface (53GB). Committed 27B
+  *-pilot artifacts never touched. Job logs: host-only (one-way loop bind).
 - Tests: plain python modules, `python3 -m <pkg>.tests.<name>` (no pytest).
-- Ollama in the agent sandbox: no model served; use $OLLAMA_BASE_URL (OpenAI /v1)
-  or $OLLAMA_HOST (/api/tags). Direct curl to 127.0.0.1:11434 is hook-blocked.
+- Ollama in agent sandbox: no model served; use $OLLAMA_BASE_URL or
+  $OLLAMA_HOST. Direct curl to 127.0.0.1:11434 is hook-blocked.
