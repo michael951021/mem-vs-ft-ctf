@@ -1,48 +1,42 @@
 # NOTES — current state
 
-## Task: fix-h3run-29326f13 (Fix h3run: RuntimeError in train_qlora.py) — 3rd pass
-h3run = `bash scripts/gpu_job.sh` (loop GPU job, gpu/mem:48/10h). 1st pass (split
-install + memstat/mem_guard + heartbeat + full-log tee to .tools/h3run.joblog)
-and 2nd pass (numpy==1.26.4/pyarrow==18.1.0 pins) merged. 08:01 run on 10-13
-passed pilot A-D (seeds 0+1) + SFT (40 records) + heavy install (no-op);
-QLoRA then died at train_qlora.py:126 `from trl import SFTTrainer` with
-`RuntimeError ... No module named 'rich'` (rc=1, .tools/h3run.joblog).
+## Task: fe0dada2d73a (Isolate pilot arms per-process + checkpoint per arm)
+run_pilot.sh ALREADY ran each (arm,seed) cell in its own subprocess (old lines
+30-38; also in ee1b774) — the missing parts were per-cell peak-RSS logging and
+any skip/checkpoint, so a job killed mid-pilot re-ran finished cells (4 full
+pilot passes in .tools/h3run.joblog 10-13; ~6 GPU re-runs burned).
 
-### Root cause (3rd pass)
-trl 0.9.6 is a lazy module: bare `import trl` passes, so the script's
-`import torch,...,trl,...` check passed. But trl.trainer.sft_trainer →
-trl/trainer/utils.py:26 imports `rich`, and trl does NOT declare rich in its
-metadata (checked trl-0.9.6.dist-info/METADATA) → uv never installs it → first
-real training import dies.
+### Changes
+- scripts/cell_runner.py (new): runs one cell as a single child, streams its
+  output, then prints `cell-peak arm=.. seed=.. pid=.. peak_rss_kb=.. rc=..`
+  (ru_maxrss of the reaped child = exact per-cell high-water RSS).
+- scripts/run_pilot.sh: each cell runs via cell_runner; on rc=0 the run dir
+  (from the `DONE ->` line) is copied to the checkpoint store and a marker
+  (`$key.done`: line 1 run-dir name, line 2 PARAMS fingerprint) is written.
+  Re-run: marker+params match => restore run dir + `SKIP` (no re-run); stale
+  params => WARN + re-run. Store = .tools/pilot_ckpt/$TAG (shared bind;
+  runs/ is per-job and NOT shared). `CKPT_DIR=` (empty) disables
+  (dash form `${CKPT_DIR-...}`, not colon). `MOCK=1` = offline oracle cells
+  (no GPU/Ollama) for tests/dry-runs.
 
-### Fix (3rd pass)
-- .venv-gpu: `uv pip install rich` → rich 15.0.0 (+ pygments/mdurl/markdown-it-py).
-- scripts/gpu_job.sh: `rich==15.0.0` added to heavy install line; BOTH import
-  checks now run TRAIN_IMPORTS = train_qlora.py's real training-path imports
-  (torch, bitsandbytes, datasets.load_dataset, transformers.{AutoModelForCausalLM,
-  AutoTokenizer, BitsAndBytesConfig, TrainingArguments}, peft.{LoraConfig,
-  get_peft_model, prepare_model_for_kbit_training}, trl.SFTTrainer) — a fresh
-  build installs rich; a broken venv gets re-extracted.
-
-### Verified here (no GPU)
-- Pre-fix acceptance: real import block on .venv-gpu rc=1, traceback identical to
-  joblog → .agent-evidence/h3run-rich-import-pre.log (also the regression proof
-  that the check fails when rich is absent).
-- Post-fix: rc 0 "IMPORTS OK" → h3run-rich-import-post.log.
-- Script's own TRAIN_IMPORTS (sed-extracted from gpu_job.sh) rc 0 →
-  h3run-train-imports-script.log (bnb "no GPU" warning expected in sandbox).
+### Verified (no GPU)
+- Pre-fix acceptance FAIL (9 failures, expected) →
+  .agent-evidence/pilot-ckpt-acceptance-prefix.log.
+- Post-fix `python3 -m scripts.tests.test_pilot_ckpt` PASS 0 failures →
+  pilot-ckpt-acceptance-final.log; per-leg logs pilot-ckpt-run{1,2,3}.log:
+  run1 = 2 cells, distinct pids, peak_rss_kb ~21MB, both checkpointed;
+  run2 = 2x SKIP, 0 re-runs, deleted dir restored byte-identical;
+  run3 (CKPT_DIR="") = 2 cells, 0 checkpointed (disable path clean).
 - bash -n rc 0; `python3 -m scripts.tests.test_gpu_job_guard` 6/6 PASS.
-- Script's exact pinned install line on real venv: no-op, rc 0 →
-  h3run-reinstall-noop.log.
+- Mock cell peak ~21MB supports the hypothesis that the 47.6G cgroup OOM
+  holder is NOT the pilot python cells (they are tiny HTTP-inference clients).
 
-### Next box run (watch)
-- Expect: pilot → 40 SFT → heavy import (now strict) → 15GB HF 7B download →
-  train → finetune/adapters/E-qwen7b + train_meta.json (measured gpu-hours).
-- If it dies again, read .tools/h3run.joblog (tee'd; rc on every FATAL line).
-- KNOWN-BUGGY: `est_gpu_hours_single_3090` in the plan output (716.8 for 40 ex)
-  is a placeholder (train_qlora.py estimate_gpu_hours, factor_s=3.0e-9, docstring
-  says calibrate on first run); hand math says real is ~0.1-0.3 gpu-h. Calibrate
-  from measured train_meta.json after the first real run — separate ticket.
+### Open (watch on next real h3run)
+- Attribute the 47.6G OOM: read the per-cell `cell-peak` lines in
+  .tools/h3run.joblog; mock says cells are ~21MB, so expect the holder to be
+  elsewhere (Ollama server? SFT build? HF download?).
+- h3run (separate ticket, merged 73f2097): est_gpu_hours placeholder still
+  uncalibrated — needs first real train_meta.json.
 
 ## Conventions
 - Loop jobs run "no agent" via lib/jobs.py; shared binds: .tools, .venv-gpu,
