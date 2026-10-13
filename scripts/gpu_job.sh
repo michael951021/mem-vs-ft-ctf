@@ -28,6 +28,7 @@ OLL=127.0.0.1:11434
 B=qwen2.5:7b-instruct
 PY=.venv-gpu/bin/python
 UV=.tools/bin/uv
+HB=""   # heartbeat subshell pid, set in main, cleared in _on_exit
 
 log(){ echo "[gpu_job $(date +%T)] $*"; }
 oll(){ OLLAMA_HOST=$OLL ollama "$@"; }
@@ -62,6 +63,7 @@ mem_guard(){
 }
 
 _on_exit(){
+  [ -n "$HB" ] && kill "$HB" 2>/dev/null
   memstat "exit rc=$?"
   [ -n "$CTF_WORKROOT" ] && rm -rf "$CTF_WORKROOT"
 }
@@ -70,17 +72,28 @@ main(){
   CTF_WORKROOT="$(mktemp -d)"
   export CTF_WORKROOT
   trap _on_exit EXIT
+
+  # The loop's GPU stall watchdog (JOB_STALL_GPU_MIN, default 15) kills a GPU job after
+  # 15 min of no log output. Several steps here are legitimately silent for longer than
+  # that -- the torch/bitsandbytes install, a long pilot arm, a QLoRA epoch. Emit a
+  # job-wide heartbeat every 2 min so "slow but working" is never mistaken for wedged.
+  ( while :; do sleep 120; echo "[gpu_job $(date +%T)] heartbeat (job alive)"; done ) & HB=$!
+
   memstat start
 
   # 0) venv + LIGHT deps only (pilot/analysis need pyyaml+numpy+matplotlib).
   #    Keep the pre-CORE window short: no multi-GB download before the pilot.
-  if [ ! -x "$PY" ]; then
+  #    Guard on an actual import, not just that python exists: a run killed
+  #    mid-install leaves a partial venv (bin/python present, packages half-written)
+  #    that must be rebuilt, not reused.
+  if ! "$PY" -c "import yaml, numpy, scipy, matplotlib" 2>/dev/null; then
     log "building .venv-gpu (uv)"
+    rm -rf .venv-gpu
     "$UV" venv --python 3.12 .venv-gpu \
       || { rm -rf .venv-gpu; "$UV" venv --python 3.12 .venv-gpu \
       || { log "FATAL uv venv"; exit 2; }; }
   fi
-  "$UV" pip install -q --python "$PY" pyyaml numpy scipy matplotlib \
+  "$UV" pip install --python "$PY" pyyaml numpy scipy matplotlib \
     || { log "FATAL light deps"; exit 2; }
   log "light deps ready"
 
@@ -116,10 +129,14 @@ main(){
   #     (the pre-fix job was killed exactly there).
   memstat before-heavy-install
   mem_guard 8 900 || log "WARN host MemAvailable < 8GB after 15min wait -- proceeding (install is light)"
-  "$UV" pip install -q --python "$PY" \
+  # Re-run the pinned install only if the heavy stack does not import: a run killed
+  # mid-install leaves partial wheels; uv re-extracts exactly what is missing.
+  if ! "$PY" -c "import torch,transformers,peft,bitsandbytes,trl,datasets,accelerate" 2>/dev/null; then
+    "$UV" pip install --python "$PY" \
       torch==2.4.1 transformers==4.44.2 peft==0.12.0 bitsandbytes==0.43.3 \
       trl==0.9.6 datasets==2.21.0 accelerate==0.33.0 \
     || { log "FATAL heavy deps"; exit 2; }
+  fi
   memstat after-heavy-install
   log "heavy deps ready"
 
