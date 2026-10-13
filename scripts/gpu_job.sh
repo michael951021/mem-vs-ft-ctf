@@ -21,11 +21,21 @@ UV=.tools/bin/uv
 log(){ echo "[gpu_job $(date +%T)] $*"; }
 oll(){ OLLAMA_HOST=$OLL ollama "$@"; }
 
-# 0) fresh venv built inside the worktree (path-correct for the sandbox)
-if [ ! -x "$PY" ]; then
+# The loop's GPU stall watchdog (JOB_STALL_GPU_MIN, default 15) kills a GPU job after
+# 15 min of no log output. Several steps here are legitimately silent for longer than
+# that -- the torch/bitsandbytes install, a long pilot arm, a QLoRA epoch. Emit a
+# job-wide heartbeat every 2 min so "slow but working" is never mistaken for wedged.
+( while :; do sleep 120; echo "[gpu_job $(date +%T)] heartbeat (job alive)"; done ) & HB=$!
+trap 'kill "$HB" 2>/dev/null' EXIT
+
+# 0) venv built inside the worktree (path-correct for the sandbox). Guard on an actual
+#    import, not just that python exists: a run killed mid-install leaves a partial venv
+#    (bin/python present, torch half-written) that must be rebuilt, not reused.
+if ! "$PY" -c "import torch,transformers,peft,bitsandbytes,trl,datasets,accelerate" 2>/dev/null; then
   log "building .venv-gpu (uv)"
+  rm -rf .venv-gpu
   "$UV" venv --python 3.12 .venv-gpu || { log "FATAL uv venv"; exit 2; }
-  "$UV" pip install -q --python "$PY" pyyaml numpy scipy matplotlib \
+  "$UV" pip install --python "$PY" pyyaml numpy scipy matplotlib \
       torch==2.4.1 transformers==4.44.2 peft==0.12.0 bitsandbytes==0.43.3 \
       trl==0.9.6 datasets==2.21.0 accelerate==0.33.0 || { log "FATAL deps"; exit 2; }
 fi
