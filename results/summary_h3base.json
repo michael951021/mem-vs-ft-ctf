@@ -1,5 +1,5 @@
 {
-  "n_attempts": 627,
+  "n_attempts": 717,
   "arms": [
     "A",
     "B",
@@ -12,67 +12,67 @@
   ],
   "success_rate": {
     "A|train": {
-      "rate": 0.27692307692307694,
-      "n": 65
+      "rate": 0.28,
+      "n": 75
     },
     "A|test-indist": {
-      "rate": 0.36923076923076925,
-      "n": 65
+      "rate": 0.37333333333333335,
+      "n": 75
     },
     "A|test-transfer": {
       "rate": 0.6,
-      "n": 65
+      "n": 75
     },
     "B|train": {
-      "rate": 0.15384615384615385,
-      "n": 65
+      "rate": 0.16,
+      "n": 75
     },
     "B|test-indist": {
-      "rate": 0.4307692307692308,
-      "n": 65
+      "rate": 0.4266666666666667,
+      "n": 75
     },
     "B|test-transfer": {
-      "rate": 0.5967741935483871,
-      "n": 62
+      "rate": 0.5972222222222222,
+      "n": 72
     },
     "C|train": {
       "rate": 0.2,
-      "n": 40
+      "n": 45
     },
     "C|test-indist": {
-      "rate": 0.2,
-      "n": 40
+      "rate": 0.17777777777777778,
+      "n": 45
     },
     "C|test-transfer": {
-      "rate": 0.375,
-      "n": 40
+      "rate": 0.37777777777777777,
+      "n": 45
     },
     "D|train": {
       "rate": 0.4,
-      "n": 40
+      "n": 45
     },
     "D|test-indist": {
-      "rate": 0.425,
-      "n": 40
+      "rate": 0.4222222222222222,
+      "n": 45
     },
     "D|test-transfer": {
-      "rate": 0.475,
-      "n": 40
+      "rate": 0.4666666666666667,
+      "n": 45
     }
   },
   "H1_advantage_over_A": {
     "B": {
       "n_pairs": 10,
       "n_clusters": 5,
-      "advantage": 0.1,
-      "ci_lo": -0.3,
+      "advantage": 0.0,
+      "ci_lo": -0.6,
       "ci_hi": 0.6
     },
     "C": {
       "n_pairs": 10,
       "n_clusters": 5,
-      "advantage": -0.1,
-      "ci_lo": -0.4,
+      "advantage": -0.2,
+      "ci_lo": -0.6,
       "ci_hi": 0.2
     },
     "D": {
@@ -85,14 +85,14 @@
   },
   "H2_transfer_retention": {
     "B": {
-      "adv_indist": 0.1,
+      "adv_indist": 0.0,
       "adv_transfer": 0.0,
-      "retention": 0.0
+      "retention": null
     },
     "C": {
-      "adv_indist": -0.1,
+      "adv_indist": -0.2,
       "adv_transfer": -0.2,
-      "retention": 2.0
+      "retention": 1.0
     },
     "D": {
       "adv_indist": 0.1,
@@ -146,24 +146,24 @@
   },
   "efficiency": {
     "A|test-indist": {
-      "mean_turns_to_solve": 4.17,
-      "mean_out_tokens": 86.3,
-      "n_solves": 24
+      "mean_turns_to_solve": 4.14,
+      "mean_out_tokens": 85.8,
+      "n_solves": 28
     },
     "A|test-transfer": {
-      "mean_turns_to_solve": 3.15,
-      "mean_out_tokens": 57.6,
-      "n_solves": 39
+      "mean_turns_to_solve": 3.16,
+      "mean_out_tokens": 57.7,
+      "n_solves": 45
     },
     "B|test-indist": {
-      "mean_turns_to_solve": 4.29,
-      "mean_out_tokens": 98.3,
-      "n_solves": 28
+      "mean_turns_to_solve": 4.19,
+      "mean_out_tokens": 99.5,
+      "n_solves": 32
     },
     "B|test-transfer": {
       "mean_turns_to_solve": 3.35,
-      "mean_out_tokens": 74.7,
-      "n_solves": 37
+      "mean_out_tokens": 75.1,
+      "n_solves": 43
     },
     "C|test-indist": {
       "mean_turns_to_solve": 6.5,
@@ -171,19 +171,19 @@
       "n_solves": 8
     },
     "C|test-transfer": {
-      "mean_turns_to_solve": 4.4,
-      "mean_out_tokens": 99.6,
-      "n_solves": 15
-    },
-    "D|test-indist": {
-      "mean_turns_to_solve": 3.35,
-      "mean_out_tokens": 236.3,
+      "mean_turns_to_solve": 4.35,
+      "mean_out_tokens": 96.6,
       "n_solves": 17
     },
-    "D|test-transfer": {
-      "mean_turns_to_solve": 3.79,
-      "mean_out_tokens": 101.6,
+    "D|test-indist": {
+      "mean_turns_to_solve": 3.37,
+      "mean_out_tokens": 240.2,
       "n_solves": 19
+    },
+    "D|test-transfer": {
+      "mean_turns_to_solve": 3.76,
+      "mean_out_tokens": 99.0,
+      "n_solves": 21
     }
   },
   "sample_efficiency_curve": {
@@ -217,7 +217,12 @@
       7.0,
       8.0,
       8.5,
-      8.5
+      8.5,
+      8.5,
+      8.5,
+      9.5,
+      10.0,
+      10.0
     ],
     "B": [
       0.0,
@@ -249,7 +254,12 @@
       3.5,
       4.0,
       4.5,
-      4.5
+      4.5,
+      4.5,
+      4.5,
+      5.0,
+      5.5,
+      5.5
     ],
     "C": [
       0.0,
