@@ -19,3 +19,7 @@
 - Goal: Fix h3run: non-zero exit (exit-code)
 - Approach: proved the kill timeline and refuted output/cap theories from .tools/h3run.joblog, wrote a failing acceptance test first (test_gpu_job_exit: true-rc trap test + known-answer fake-/proc tree-RSS test), then fixed gpu_job.sh and verified with regressions.
 - Blockers: none (true acceptance that the job completes needs the next real GPU run — no GPU/Ollama in agent sandboxes; the already-merged per-cell isolation + 64G cap address the documented memory root cause and will emit the attribution lines on that run).
+## H3 matched-base GPU run
+- Goal: H3 matched-base GPU run
+- Approach: compute job h3run ran bash scripts/gpu_job.sh (exit 0)
+- Blockers: none

@@ -1,5 +1,5 @@
 {
-  "n_attempts": 717,
+  "n_attempts": 838,
   "arms": [
     "A",
     "B",
@@ -12,92 +12,92 @@
   ],
   "success_rate": {
     "A|train": {
-      "rate": 0.28,
-      "n": 75
+      "rate": 0.2823529411764706,
+      "n": 85
     },
     "A|test-indist": {
-      "rate": 0.37333333333333335,
-      "n": 75
+      "rate": 0.3764705882352941,
+      "n": 85
     },
     "A|test-transfer": {
       "rate": 0.6,
-      "n": 75
+      "n": 85
     },
     "B|train": {
-      "rate": 0.16,
-      "n": 75
+      "rate": 0.17647058823529413,
+      "n": 85
     },
     "B|test-indist": {
-      "rate": 0.4266666666666667,
-      "n": 75
+      "rate": 0.4117647058823529,
+      "n": 85
     },
     "B|test-transfer": {
-      "rate": 0.5972222222222222,
-      "n": 72
+      "rate": 0.5853658536585366,
+      "n": 82
     },
     "C|train": {
-      "rate": 0.2,
-      "n": 45
+      "rate": 0.19642857142857142,
+      "n": 56
     },
     "C|test-indist": {
-      "rate": 0.17777777777777778,
-      "n": 45
+      "rate": 0.23636363636363636,
+      "n": 55
     },
     "C|test-transfer": {
-      "rate": 0.37777777777777777,
-      "n": 45
+      "rate": 0.36363636363636365,
+      "n": 55
     },
     "D|train": {
       "rate": 0.4,
-      "n": 45
+      "n": 55
     },
     "D|test-indist": {
-      "rate": 0.4222222222222222,
-      "n": 45
+      "rate": 0.43636363636363634,
+      "n": 55
     },
     "D|test-transfer": {
-      "rate": 0.4666666666666667,
-      "n": 45
+      "rate": 0.4909090909090909,
+      "n": 55
     }
   },
   "H1_advantage_over_A": {
     "B": {
       "n_pairs": 10,
       "n_clusters": 5,
-      "advantage": 0.0,
-      "ci_lo": -0.6,
-      "ci_hi": 0.6
+      "advantage": -0.1,
+      "ci_lo": -0.4,
+      "ci_hi": 0.2
     },
     "C": {
       "n_pairs": 10,
       "n_clusters": 5,
-      "advantage": -0.2,
-      "ci_lo": -0.6,
-      "ci_hi": 0.2
+      "advantage": 0.1,
+      "ci_lo": -0.4,
+      "ci_hi": 0.6
     },
     "D": {
       "n_pairs": 10,
       "n_clusters": 5,
       "advantage": 0.1,
-      "ci_lo": -0.3,
-      "ci_hi": 0.6
+      "ci_lo": 0.0,
+      "ci_hi": 0.3
     }
   },
   "H2_transfer_retention": {
     "B": {
-      "adv_indist": 0.0,
-      "adv_transfer": 0.0,
-      "retention": null
+      "adv_indist": -0.1,
+      "adv_transfer": -0.1,
+      "retention": 1.0
     },
     "C": {
-      "adv_indist": -0.2,
-      "adv_transfer": -0.2,
-      "retention": 1.0
+      "adv_indist": 0.1,
+      "adv_transfer": -0.3,
+      "retention": -3.0
     },
     "D": {
       "adv_indist": 0.1,
-      "adv_transfer": -0.1,
-      "retention": -1.0
+      "adv_transfer": 0.0,
+      "retention": 0.0
     }
   },
   "H1b_turns_saved_vs_A": {
@@ -105,8 +105,8 @@
       "n_pairs": 4,
       "n_clusters": 2,
       "turns_saved_vs_A": -1.25,
-      "ci_lo": -3.5,
-      "ci_hi": 1.0
+      "ci_lo": -4.0,
+      "ci_hi": 1.5
     },
     "B|test-transfer": {
       "n_pairs": 6,
@@ -118,19 +118,19 @@
     "C|test-indist": {
       "n_pairs": 3,
       "n_clusters": 2,
-      "turns_saved_vs_A": -4.0,
-      "ci_lo": -6.0,
-      "ci_hi": -2.0
+      "turns_saved_vs_A": -1.0,
+      "ci_lo": -2.0,
+      "ci_hi": 0.0
     },
     "C|test-transfer": {
-      "n_pairs": 5,
+      "n_pairs": 6,
       "n_clusters": 3,
-      "turns_saved_vs_A": -1.5,
+      "turns_saved_vs_A": -1.333,
       "ci_lo": -2.0,
       "ci_hi": -0.5
     },
     "D|test-indist": {
-      "n_pairs": 3,
+      "n_pairs": 4,
       "n_clusters": 2,
       "turns_saved_vs_A": 1.0,
       "ci_lo": 0.0,
@@ -146,44 +146,44 @@
   },
   "efficiency": {
     "A|test-indist": {
-      "mean_turns_to_solve": 4.14,
-      "mean_out_tokens": 85.8,
-      "n_solves": 28
+      "mean_turns_to_solve": 4.12,
+      "mean_out_tokens": 85.5,
+      "n_solves": 32
     },
     "A|test-transfer": {
       "mean_turns_to_solve": 3.16,
       "mean_out_tokens": 57.7,
-      "n_solves": 45
+      "n_solves": 51
     },
     "B|test-indist": {
-      "mean_turns_to_solve": 4.19,
-      "mean_out_tokens": 99.5,
-      "n_solves": 32
+      "mean_turns_to_solve": 4.31,
+      "mean_out_tokens": 100.1,
+      "n_solves": 35
     },
     "B|test-transfer": {
       "mean_turns_to_solve": 3.35,
       "mean_out_tokens": 75.1,
-      "n_solves": 43
+      "n_solves": 48
     },
     "C|test-indist": {
-      "mean_turns_to_solve": 6.5,
-      "mean_out_tokens": 166.2,
-      "n_solves": 8
+      "mean_turns_to_solve": 5.69,
+      "mean_out_tokens": 145.2,
+      "n_solves": 13
     },
     "C|test-transfer": {
-      "mean_turns_to_solve": 4.35,
-      "mean_out_tokens": 96.6,
-      "n_solves": 17
+      "mean_turns_to_solve": 4.45,
+      "mean_out_tokens": 101.3,
+      "n_solves": 20
     },
     "D|test-indist": {
-      "mean_turns_to_solve": 3.37,
-      "mean_out_tokens": 240.2,
-      "n_solves": 19
+      "mean_turns_to_solve": 3.33,
+      "mean_out_tokens": 221.7,
+      "n_solves": 24
     },
     "D|test-transfer": {
-      "mean_turns_to_solve": 3.76,
-      "mean_out_tokens": 99.0,
-      "n_solves": 21
+      "mean_turns_to_solve": 3.89,
+      "mean_out_tokens": 107.6,
+      "n_solves": 27
     }
   },
   "sample_efficiency_curve": {
@@ -222,7 +222,12 @@
       8.5,
       9.5,
       10.0,
-      10.0
+      10.0,
+      10.0,
+      10.0,
+      11.0,
+      11.5,
+      11.5
     ],
     "B": [
       0.0,
@@ -259,7 +264,12 @@
       4.5,
       5.0,
       5.5,
-      5.5
+      5.5,
+      5.5,
+      5.5,
+      6.0,
+      6.5,
+      6.5
     ],
     "C": [
       0.0,
@@ -271,7 +281,13 @@
       1.0,
       1.5,
       2.0,
-      2.0
+      2.0,
+      2.0,
+      2.0,
+      2.5,
+      3.0,
+      3.0,
+      3.0
     ],
     "D": [
       0.0,
@@ -283,7 +299,12 @@
       2.0,
       3.0,
       3.5,
-      4.0
+      4.0,
+      4.0,
+      4.0,
+      5.0,
+      6.0,
+      6.0
     ]
   }
 }

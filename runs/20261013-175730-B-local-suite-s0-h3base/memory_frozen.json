@@ -1,0 +1,27 @@
+{
+  "name": "raw-icl",
+  "k": 3,
+  "demos": [
+    {
+      "family": "crypto/encoding-base64",
+      "challenge_id": "enc-base64",
+      "lines": [
+        "- read: message.txt",
+        "- shell: base64 -d <<< \"cGljb0NURntiNHNlNjRfaTVfbjB0X2VuY3J5cDcxMG59\"",
+        "- shell: base64 --decode <<< \"cGljb0NURntiNHNlNjRfaTVfbjB0X2VuY3J5cDcxMG59\"",
+        "- shell: echo -n \"cGljb0NURntiNHNlNjRfaTVfbjB0X2VuY3J5cDcxMG59\" | base64 --decode",
+        "- submit: [REDACTED_FLAG]"
+      ]
+    },
+    {
+      "family": "forensics/recover-strings",
+      "challenge_id": "for-strings",
+      "lines": [
+        "- read: dump.bin",
+        "- shell: xxd -p dump.bin | grep -a -b -o '[^0-9a-f]\\+[^0-9a-f]\\+' | cut -d: -f1-2 | tr -d '\\n' | xargs -n2 | xxd -r -p | base64 -d | xargs echo -n",
+        "- shell: strings dump.bin | grep picoCTF{",
+        "- submit: [REDACTED_FLAG]"
+      ]
+    }
+  ]
+}
