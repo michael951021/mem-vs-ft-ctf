@@ -13,6 +13,25 @@ Why does the job exit non-zero, and how do we make the exit code truthful and
 the next kill diagnosable from the log?
 
 ## Evidence
+- Job-log triage (auto-filed from the job log, 2026-10-13): exit `exit-code`,
+  code 1; memory cap 64.0 GB; peak 0.1 GB (systemd MemoryPeak, host-side);
+  failing command `bash scripts/gpu_job.sh`. Full log:
+  /home/kevin/Documents/coders/loop/logs/jobs/mem-vs-ft-ctf-h3run.log
+  Last console output before the exit (the job UI does not show this):
+    indist xor-single   solved=False turns=15
+    indist for-grep     solved=False turns=15
+    indist rev-logic    solved=True turns=4
+    [20261013-131825-B-local-suite-s1-h3base] TEST transfer on 5: ['enc-base32', 'cls-atbash', 'xor-repeat', 'for-split', 'rev-arith']
+    transfer enc-base32   solved=True turns=4
+    transfer cls-atbash   solved=True turns=3
+    transfer xor-repeat   solved=False turns=15
+    transfer for-split    solved=True turns=3
+    transfer rev-arith    solved=False turns=15
+    [20261013-131825-B-local-suite-s1-h3base] DONE -> runs/20261013-131825-B-local-suite-s1-h3base
+    Auto-merging results/redaction_audit.json
+    CONFLICT (content): Merge conflict in results/redaction_audit.json
+    Automatic merge failed; fix conflicts and then commit the result.
+    error: job worktree .../job-h3run cannot take master (merge conflict): resolve it there
 - 13:05 run ran under the 64G cap (job/h3run merged master after 0ff74e2 at
   13:05:03) yet died identically -> the 48G cgroup-OOM theory is refuted for
   that run (it may still explain the two 48G-cap deaths).
@@ -35,12 +54,17 @@ the next kill diagnosable from the log?
   (`tree_rss_kb=`) so the next kill shows a memory ramp (memory killer) or a
   flat line (external) -- known-answer fake-/proc test.
 - Regressions pass: bash -n, test_gpu_job_guard, test_pilot_ckpt.
+- The command exits 0 on the real inputs (job-triage bar); a fast check
+  (test_gpu_job_exit) covers the fixed path.
 - Honest limit: proving the job completes needs the next real GPU run (no
   GPU/Ollama in agent sandboxes).
 
 ## Stop when
 Two attempts without new evidence, or the next real run lands cell-peak +
-heartbeat-RSS lines contradicting this diagnosis.
+heartbeat-RSS lines contradicting this diagnosis. If a blocker is recorded
+and two attempts pass without new evidence, the signature escalates to a
+human card. Reproduce cheaply first (tiny config / small input), not by
+re-running the whole job.
 
 ## Plan
 1. Acceptance test scripts/tests/test_gpu_job_exit.py; run pre-fix (FAIL).
@@ -49,3 +73,4 @@ heartbeat-RSS lines contradicting this diagnosis.
    and route the heartbeat through hb_once which appends tree_rss_kb=;
    memstat cgroup fallback "?" -> "absent".
 3. Run test + regressions; commit; git merge master.
+4. Make sure the fix reaches the job's branch so its retry picks it up.
