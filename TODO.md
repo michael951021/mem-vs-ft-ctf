@@ -10,3 +10,4 @@
 - [ ] **H3 matched-base GPU run** — 7B pilot A-D + QLoRA-E, best-effort E/F serving; writes results/summary_h3.json (id: h3run) (run: `bash scripts/gpu_job.sh`) (gpu) (mem: 48) (cpus: 16) (timeout: 10h)
 - [x] **Fix h3run: OOM (ran out of memory)** — auto-filed from the job log (id: fix-h3run-45f7fb3f) (after: -)
 - [x] **Fix h3run: OOM (ran out of memory)** — auto-filed from the job log (previous fix did not resolve it) (id: fix-h3run-45f7fb3f) (after: -)
+- [x] **Fix h3run: RuntimeError in train_qlora.py** — auto-filed from the job log (id: fix-h3run-29326f13) (after: -)

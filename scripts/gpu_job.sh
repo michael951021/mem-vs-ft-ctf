@@ -145,18 +145,28 @@ main(){
   #     (the pre-fix job was killed exactly there).
   memstat before-heavy-install
   mem_guard 8 900 || log "WARN host MemAvailable < 8GB after 15min wait -- proceeding (install is light)"
+  # The import check is the source of truth, not the install: a satisfied install
+  # with an incompatible numpy/pyarrow pair would loop forever otherwise. It must
+  # exercise train_qlora.py's REAL training-path imports, not bare `import trl`:
+  # trl 0.9.6 is a lazy module (bare import passes) but its SFTTrainer chain
+  # imports `rich` in trainer/utils.py WITHOUT declaring it in trl's metadata,
+  # so uv never installs it and `from trl import SFTTrainer` dies at train time.
+  # (+ bitsandbytes: imported at runtime by transformers' load_in_4bit path.)
+  TRAIN_IMPORTS='import torch, bitsandbytes
+from datasets import load_dataset
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from trl import SFTTrainer'
   # Re-run the pinned install only if the heavy stack does not import: a run killed
   # mid-install leaves partial wheels; uv re-extracts exactly what is missing.
-  if ! "$PY" -c "import torch,transformers,peft,bitsandbytes,trl,datasets,accelerate" 2>/dev/null; then
+  if ! "$PY" -c "$TRAIN_IMPORTS" 2>/dev/null; then
     "$UV" pip install --python "$PY" \
       torch==2.4.1 transformers==4.44.2 peft==0.12.0 bitsandbytes==0.43.3 \
-      trl==0.9.6 datasets==2.21.0 accelerate==0.33.0 \
+      trl==0.9.6 datasets==2.21.0 accelerate==0.33.0 rich==15.0.0 \
       "$NUMPY_PIN" "$PYARROW_PIN" \
     || { log "FATAL heavy deps rc=$?"; exit 2; }
   fi
-  # The import check is the source of truth, not the install: a satisfied install
-  # with an incompatible numpy/pyarrow pair would loop forever otherwise.
-  if ! "$PY" -c "import torch,transformers,peft,bitsandbytes,trl,datasets,accelerate" 2>"$DIAG.import-err"; then
+  if ! "$PY" -c "$TRAIN_IMPORTS" 2>"$DIAG.import-err"; then
     { echo "FATAL heavy import check still failing after install:"; tail -5 "$DIAG.import-err"; } >>"$DIAG" 2>/dev/null
     log "FATAL heavy import check (see $DIAG tail)"
     exit 2
