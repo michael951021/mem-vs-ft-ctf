@@ -1,39 +1,27 @@
 {
-  "n_artifacts_scanned": 92,
+  "n_artifacts_scanned": 179,
   "n_leaks": 0,
   "leak_sources": [],
   "spot_check_fraction": 0.196,
   "spot_check_sample": [
     {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:37",
+      "src": "finetune/data/sft_crypto_encoding.jsonl:47",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "finetune/data/sft_all.jsonl:1",
+      "src": "finetune/data/sft_crypto_encoding.jsonl:56",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "runs/20261010-133414-D-local-suite-s0-pilot/memory_frozen.json",
-      "preview": "{\n  \"name\": \"playbook-ace\",\n  \"hierarchical\": true,\n  \"bullets\": [\n    {\n      \"text\": \"For crypto/xor: use known-plaintext ('picoCTF{') to recover the XOR key. Typical tool path: shell -> submit.\",\n      \"family\": \"crypto/xor-single\",\n      \"uses\": 0,\n      \"wins\": 0,\n      \"created_from\": \"xor-sin"
+      "src": "runs/20261013-093343-B-local-suite-s1-h3base/memory_frozen.json",
+      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": [\n    {\n      \"family\": \"reversing/constant-rot13\",\n      \"challenge_id\": \"rev-logic\",\n      \"lines\": [\n        \"- read: check.py\",\n        \"- read: SECRET\",\n        \"- shell: python3 -c \\\"import codecs; print(codecs.decode('cvpbPGS{e3nq_gur_f0hepr_yhxr}',"
     },
     {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:21",
+      "src": "finetune/data/sft_crypto_encoding.jsonl:15",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "finetune/data/sft_all.jsonl:13",
-      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
-    },
-    {
-      "src": "finetune/data/sft_all.jsonl:10",
-      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
-    },
-    {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:39",
-      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
-    },
-    {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:26",
+      "src": "finetune/data/sft_all.jsonl:15",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
@@ -41,39 +29,119 @@
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
+      "src": "finetune/data/sft_crypto_encoding.jsonl:52",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_crypto_encoding.jsonl:26",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_all.jsonl:7",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_crypto_encoding.jsonl:40",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_all.jsonl:34",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_crypto_encoding.jsonl:4",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_all.jsonl:14",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "runs/20261013-180248-D-local-suite-s0-h3base/memory_frozen.json",
+      "preview": "{\n  \"name\": \"playbook-ace\",\n  \"hierarchical\": true,\n  \"bullets\": [\n    {\n      \"text\": \"For crypto/encoding: identify the encoding and decode it. Typical tool path: read -> shell -> submit.\",\n      \"family\": \"crypto/encoding-base64\",\n      \"uses\": 0,\n      \"wins\": 0,\n      \"created_from\": \"enc-base6"
+    },
+    {
+      "src": "finetune/data/sft_crypto_encoding.jsonl:21",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_all.jsonl:50",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "runs/20261013-180033-C-local-suite-s0-h3base/memory_frozen.json",
+      "preview": "{\n  \"name\": \"episodic\",\n  \"k\": 3,\n  \"episodes\": [\n    {\n      \"family\": \"crypto/encoding-base64\",\n      \"challenge_id\": \"enc-base64\",\n      \"desc\": \"message.txt contains an encoded string. Decode it to recover the flag.\\nFiles in the working directory: message.txt\\nThe flag format is [REDACTED_FLAG]"
+    },
+    {
+      "src": "finetune/data/sft_all.jsonl:43",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_crypto_encoding.jsonl:13",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_all.jsonl:21",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_all.jsonl:39",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "runs/20261012-204215-B-local-suite-s1-h3base/memory_frozen.json",
+      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": [\n    {\n      \"family\": \"reversing/constant-rot13\",\n      \"challenge_id\": \"rev-logic\",\n      \"lines\": [\n        \"- read: check.py\",\n        \"- read: SECRET\",\n        \"- shell: python3 -c \\\"import codecs; print(codecs.decode('cvpbPGS{e3nq_gur_f0hepr_yhxr}',"
+    },
+    {
+      "src": "finetune/data/sft_crypto_encoding.jsonl:28",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "runs/20261013-075825-D-local-suite-s1-h3base/memory_frozen.json",
+      "preview": "{\n  \"name\": \"playbook-ace\",\n  \"hierarchical\": true,\n  \"bullets\": [\n    {\n      \"text\": \"For reversing/constant: read the source and invert the per-byte transform. Typical tool path: read -> shell -> submit.\",\n      \"family\": \"reversing/constant-rot13\",\n      \"uses\": 0,\n      \"wins\": 0,\n      \"create"
+    },
+    {
+      "src": "runs/20261013-001937-B-local-suite-s1-h3base/memory_frozen.json",
+      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": []\n}"
+    },
+    {
       "src": "finetune/data/sft_crypto_encoding.jsonl:33",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "finetune/data/sft_all.jsonl:22",
+      "src": "finetune/data/sft_all.jsonl:5",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:15",
+      "src": "finetune/data/sft_all.jsonl:28",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "finetune/data/sft_all.jsonl:12",
+      "src": "finetune/data/sft_all.jsonl:40",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:5",
+      "src": "finetune/data/sft_crypto_encoding.jsonl:39",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:24",
+      "src": "finetune/data/sft_crypto_encoding.jsonl:60",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:0",
+      "src": "finetune/data/sft_crypto_encoding.jsonl:29",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "finetune/data/sft_all.jsonl:27",
+      "src": "finetune/data/sft_crypto_encoding.jsonl:1",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     },
     {
-      "src": "finetune/data/sft_crypto_encoding.jsonl:20",
+      "src": "finetune/data/sft_all.jsonl:26",
+      "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
+    },
+    {
+      "src": "finetune/data/sft_all.jsonl:55",
       "preview": "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a careful CTF-solving agent working ONLY inside an isolated, intentionally-vulnerable practice sandbox. You never touch anything outside it.\\n\\nEach turn, think briefly, then emit EXACTLY ONE action in this format:\\n\\nACTION: <shell|read|submit>\\n"
     }
   ]

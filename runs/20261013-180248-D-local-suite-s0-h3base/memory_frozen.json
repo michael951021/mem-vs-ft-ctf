@@ -1,0 +1,20 @@
+{
+  "name": "playbook-ace",
+  "hierarchical": true,
+  "bullets": [
+    {
+      "text": "For crypto/encoding: identify the encoding and decode it. Typical tool path: read -> shell -> submit.",
+      "family": "crypto/encoding-base64",
+      "uses": 0,
+      "wins": 0,
+      "created_from": "enc-base64"
+    },
+    {
+      "text": "For reversing/constant: read the source and invert the per-byte transform. Typical tool path: read -> shell -> submit.",
+      "family": "reversing/constant-rot13",
+      "uses": 0,
+      "wins": 0,
+      "created_from": "rev-logic"
+    }
+  ]
+}
