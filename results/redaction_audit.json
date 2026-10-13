@@ -1,19 +1,23 @@
 {
-  "n_artifacts_scanned": 16,
+  "n_artifacts_scanned": 22,
   "n_leaks": 0,
   "leak_sources": [],
-  "spot_check_fraction": 0.188,
+  "spot_check_fraction": 0.182,
   "spot_check_sample": [
     {
-      "src": "runs/20261012-204215-B-local-suite-s1-h3base/memory_frozen.json",
-      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": [\n    {\n      \"family\": \"reversing/constant-rot13\",\n      \"challenge_id\": \"rev-logic\",\n      \"lines\": [\n        \"- read: check.py\",\n        \"- read: SECRET\",\n        \"- shell: python3 -c \\\"import codecs; print(codecs.decode('cvpbPGS{e3nq_gur_f0hepr_yhxr}',"
+      "src": "runs/20261013-001937-B-local-suite-s1-h3base/memory_frozen.json",
+      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": []\n}"
     },
     {
-      "src": "runs/20261010-143123-B-local-suite-s1-pilot/memory_frozen.json",
-      "preview": "{\n  \"name\": \"raw-icl\",\n  \"k\": 3,\n  \"demos\": [\n    {\n      \"family\": \"crypto/xor-single\",\n      \"challenge_id\": \"xor-single\",\n      \"lines\": [\n        \"- shell: ls -la && xxd cipher.bin | head\",\n        \"- shell: python3 -c \\\"\",\n        \"- shell: python3 -c \\\"data=open('cipher.bin','rb').read(); key="
+      "src": "runs/20261010-145713-C-local-suite-s1-pilot/memory_frozen.json",
+      "preview": "{\n  \"name\": \"episodic\",\n  \"k\": 3,\n  \"episodes\": [\n    {\n      \"family\": \"crypto/xor-single\",\n      \"challenge_id\": \"xor-single\",\n      \"desc\": \"cipher.bin is the flag XORed with a single unknown byte. Recover the flag (the plaintext starts with 'picoCTF{').\\nFiles in the working directory: cipher.bi"
     },
     {
-      "src": "runs/20261010-133414-D-local-suite-s0-pilot/memory_frozen.json",
+      "src": "runs/20261010-165637-D-local-suite-s2-pilot/memory_frozen.json",
+      "preview": "{\n  \"name\": \"playbook-ace\",\n  \"hierarchical\": true,\n  \"bullets\": [\n    {\n      \"text\": \"For crypto/xor: use known-plaintext ('picoCTF{') to recover the XOR key. Typical tool path: shell -> submit.\",\n      \"family\": \"crypto/xor-single\",\n      \"uses\": 0,\n      \"wins\": 0,\n      \"created_from\": \"xor-sin"
+    },
+    {
+      "src": "runs/20261010-151554-D-local-suite-s1-pilot/memory_frozen.json",
       "preview": "{\n  \"name\": \"playbook-ace\",\n  \"hierarchical\": true,\n  \"bullets\": [\n    {\n      \"text\": \"For crypto/xor: use known-plaintext ('picoCTF{') to recover the XOR key. Typical tool path: shell -> submit.\",\n      \"family\": \"crypto/xor-single\",\n      \"uses\": 0,\n      \"wins\": 0,\n      \"created_from\": \"xor-sin"
     }
   ]
