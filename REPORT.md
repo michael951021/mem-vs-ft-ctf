@@ -305,9 +305,61 @@ improvised by evicting the resident server mid-session.
    harder **InterCode** benchmark — plus more challenges per family.
 
 These observations are exactly the kind the design is meant to surface, logged
-per-attempt under `runs/` with the run ids in §5. The headline H1/H2/H3 success
-verdicts await the weaker-base / QLoRA runs staged in `jobqueue/`; the pilot's
-measured verdict is on **step-efficiency**, and it is a negative for arm D.
+per-attempt under `runs/` with the run ids in §5. The pilot's measured verdict is
+on **step-efficiency**, a negative for arm D; the matched-base *success* test it
+calls for is now reported in §5.4.
+
+### 5.4 H3 — matched 7B base (the powered success test §5.3 called for)
+To break the 27B ceiling, arms A–D were re-run on a weaker shared base,
+**Qwen2.5-7B-Instruct**, 2 seeds × the local suite. Success now lands at
+**0.24–0.60, not 1.0**, so H1/H2 are finally testable as *success* hypotheses.
+This run was executed as a cooperative GPU job and driven to completion by the
+loop's autonomous job/fix agents (per-arm subprocess isolation + per-cell
+checkpointing, an OOM cap raise to 64 GB, and a stall-watchdog heartbeat); the
+final run exited clean (`rc=0`, peak 15.5 GB). Artifacts are isolated under tag
+`h3base`/`h3` and `results/summary_h3*.json`; the committed 27B results (§5.1–5.3)
+are untouched.
+
+**Success rate by arm × split** (n per cell in parentheses):
+
+| arm | train | test-indist | test-transfer |
+|---|---|---|---|
+| A (base)      | 0.28 (85) | 0.38 (85) | 0.60 (85) |
+| B (raw-ICL)   | 0.18 (85) | 0.41 (85) | 0.59 (82) |
+| C (episodic)  | 0.20 (56) | 0.24 (55) | 0.36 (55) |
+| D (ACE)       | 0.40 (55) | 0.44 (55) | 0.49 (55) |
+
+**H1 — success advantage over A** (paired, clustered bootstrap, 10 pairs / 5
+family clusters): B **−0.10** CI [−0.40, +0.20]; C **+0.10** CI [−0.40, +0.60];
+D **+0.10** CI [+0.00, +0.30]. **Every CI straddles 0** (D's lower bound sits
+exactly at 0) — at this power **no memory arm shows a clear success advantage over
+the no-memory base**. **H1b** (turns saved) is null-to-negative, the one
+CI-excluding-0 effect being C transfer **−1.33** CI [−2.00, −0.50] — i.e. memory
+*costs* a turn, not saves one (D in-dist is the lone positive, +1.0 CI [0.0,2.0]).
+**H2** retention is uninformative at this n (ratios like C's −3.0 are small-count
+artifacts). This extends §5.3's ceiling-regime negative for D: off the ceiling and
+at pilot power, the memory advantage over base largely washes out, and where it
+reaches significance it is a cost.
+
+**H3 compute datum (memory vs. weights).** The QLoRA weight arm **E** was trained
+on the 64-example SFT corpus of *verified* 7B train-solves (r16/α32, 3 epochs,
+nf4) in **0.44 GPU-hours (~26 min) on one 3090** (`results/h3_train_meta.json`) —
+the weights-side budget figure for the compute-matched comparison (§7).
+
+**Open gap — E/F were not evaluated this run (honest).** Training and adapter
+merge succeeded, but serving failed: `ollama create` read the Modelfile's relative
+`FROM finetune/adapters/E-qwen7b-merged` as a registry reference
+(`dial tcp: lookup finetune …`), so `qwen7b-ftE` never registered and the E/F eval
+attempts returned HTTP 404 (empty dirs `runs/20261013-183956-{E,F}-local-suite-s0-h3`).
+So the **memory-vs-weights head-to-head on task success remains open**; the compute
+cost of the weights arm is measured, its task performance is not. Fix for the next
+window: an absolute (or `./`-prefixed) `FROM` path, or a GGUF conversion, before
+`ollama create`.
+
+**Run index.** `runs/*-h3base` (A–D × 2 seeds; the many dirs are checkpointed
+retries from the autonomous fix cycle), aggregated to `results/summary_h3base.json`
+and `results/summary_h3.json`; the two empty `*-h3` dirs are the failed E/F evals,
+kept for traceability.
 
 ## 6. Figures
 - **`fig5_turns_saved.png` — the headline result:** turns saved vs Arm A on
@@ -343,6 +395,14 @@ now, while staging the GPU-bound weight arms (E/F) and the Docker scale-up on th
 host queue (`jobqueue/`, ~4.8 h when a card frees). This is the §11-B6 discipline
 of the brief: **a smaller finished study beats a half-run large one.** Nothing in
 §5 is imputed; absent arms are marked "not yet measured," never faked.
+
+**Measured weights-arm budget (H3, §5.4).** A later GPU window ran the matched-base
+study as a cooperative GPU job: the QLoRA arm **E** trained in a **measured 0.44
+GPU-hours** on one 3090 (`results/h3_train_meta.json`). This is the first real
+weights-side budget figure for the compute-matched comparison; the memory arms'
+per-attempt inference cost is logged per run. The head-to-head is still one-sided:
+E's *task* performance was not captured because serving failed at `ollama create`
+(§5.4), so the weights column of the budget table reads "trained, not yet served."
 
 ---
 
