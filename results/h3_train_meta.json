@@ -1,0 +1,34 @@
+{
+  "gpu_hours_measured": 0.4375,
+  "plan": {
+    "arm": "E",
+    "base_model": "qwen2.5:7b-instruct",
+    "approx_params_b": 7,
+    "quant": "nf4 (QLoRA 4-bit)",
+    "lora": {
+      "r": 16,
+      "alpha": 32,
+      "dropout": 0.05,
+      "target_modules": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ]
+    },
+    "train": {
+      "epochs": 3,
+      "batch_size": 1,
+      "grad_accum": 8,
+      "lr": 0.0002,
+      "seq_len": 1024
+    },
+    "sft_corpus": "finetune/data/sft_all.jsonl",
+    "n_examples": 64,
+    "est_gpu_hours_single_3090": 1146.88,
+    "output_adapter": "finetune/adapters/E-qwen7b"
+  }
+}
