@@ -27,3 +27,7 @@
 - Goal: H3 E/F serve + eval
 - Approach: compute job h3serve ran bash scripts/h3_serve_job.sh (exit 0)
 - Blockers: none
+## Write up H3 in REPORT.md
+- Goal: Write up H3 in REPORT.md
+- Approach: Ticket + acceptance test first (scripts/tests/test_h3_report.py: Part A recomputes pooled success from raw attempts.jsonl vs summary_h3.json; Part B requires verbatim table rows and a numeric-token sweep over the section); ran it pre-implementation (fails only on the missing section), added §5.4 between the auto-block and §5.3, fixed the stale H3 sentences in §5.1/§5.3/§7/§9.2, re-ran the test (0 failures) and the render_report --inject regression (run-index-only change). Evidence: .agent-evidence/h3report-acceptance-{prefix,final1,final}.log.
+- Blockers: none.
