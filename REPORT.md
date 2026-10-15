@@ -4,12 +4,18 @@
 §5 is auto-generated from logged runs (`results/summary.json`), and every run id
 is listed in the run index. Nothing in the results section is hand-typed.*
 
-**Status of this report.** The harness is complete and offline-validated; a real
-pilot on the local CTF suite is running on the resident model and its numbers are
-injected below as they land. The compute-matched fine-tuning arms (E/F) and the
-Docker benchmark scale-up (InterCode/NYU/Cybench) are **staged** on the host GPU
-queue (`jobqueue/`) because the two RTX 3090s are committed to a live inference
-server for the duration of this session; see §7 (Compute & honesty) and §9.
+**Results at a glance (2026-10-15).** All six arms are measured.
+On the resident 27B base every arm solves every challenge, so the signal is
+step-efficiency: raw examples (B) and episodic retrieval (C) each save one turn
+in-distribution (95% CI [+0.20, +1.80]), while the consolidated playbook (D)
+saves +0.40 with a CI touching zero. That is the opposite of the H1 ordering.
+On a matched 7B base with success headroom (§5.4), no arm beats the no-memory
+baseline with a CI clear of zero. QLoRA weights (E) have the largest point
+estimate (+0.40 in-distribution on n=5) after 0.44 GPU-hours of training, but
+E/F ran with a looser turn budget than A–D, and no arm beats the baseline on
+sibling-surface transfer. The InterCode/Docker scale-up was not run. See §5.3–5.4 and §9.
+
+![The two regimes](results/figures/fig6_two_regimes.png)
 
 ---
 
@@ -289,7 +295,7 @@ tries are excluded and are not in these tables
 
 **Arm E.** QLoRA adapter (nf4, 4-bit; r=16; 3 epochs, batch 8; lr 0.0002;
 seq 1024) trained on the verified-experience SFT corpus, measured at 0.4375
-GPU-hours (`finetune/adapters/E-qwen7b/train_meta.json`). The corpus
+GPU-hours (`results/h3_train_meta.json`, the tracked copy of the adapter's train_meta.json). The corpus
 (`finetune/data/sft_all.jsonl`, manifest `finetune/data/manifest.json`) is
 64 step-level records from 1 distinct source challenge (enc-base64, family
 crypto/encoding); decontamination dropped 8 rev-logic trajectories because
@@ -448,6 +454,8 @@ staged in `jobqueue/`. This 27B pilot's measured verdict is on
 **step-efficiency**, and it is a negative for arm D.
 
 ## 6. Figures
+- **`fig6_two_regimes.png` — both regimes in one view:** 27B turns saved
+  (left) and matched-7B success advantage for all five learning arms (right).
 - **`fig5_turns_saved.png` — the headline result:** turns saved vs Arm A on
   jointly-solved tasks, per arm, in-dist vs transfer, with clustered-bootstrap
   CIs. Shows B ≈ C > D in-distribution and the transfer wash-out.
