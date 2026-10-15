@@ -51,10 +51,12 @@ _Not yet measured (needs a non-zero in-distribution advantage to normalise again
 
 #### Run index (traceability)
 
-- **arm A**: `20261010-114901-A-local-suite-s0-pilot`, `20261010-121357-A-local-suite-s0-hardpilot`, `20261010-140213-A-local-suite-s1-pilot`, `20261010-154333-A-local-suite-s2-pilot`
-- **arm B**: `20261010-122844-B-local-suite-s0-hardpilot`, `20261010-122859-B-local-suite-s0-pilot`, `20261010-143123-B-local-suite-s1-pilot`, `20261010-161320-B-local-suite-s2-pilot`
-- **arm C**: `20261010-123946-C-local-suite-s0-hardpilot`, `20261010-131213-C-local-suite-s0-pilot`, `20261010-145713-C-local-suite-s1-pilot`, `20261010-163534-C-local-suite-s2-pilot`
-- **arm D**: `20261010-124906-D-local-suite-s0-hardpilot`, `20261010-133414-D-local-suite-s0-pilot`, `20261010-151554-D-local-suite-s1-pilot`, `20261010-165637-D-local-suite-s2-pilot`
+- **arm A**: `20261010-114901-A-local-suite-s0-pilot`, `20261010-121357-A-local-suite-s0-hardpilot`, `20261010-140213-A-local-suite-s1-pilot`, `20261010-154333-A-local-suite-s2-pilot`, `20261013-175510-A-local-suite-s0-h3base`, `20261013-180507-A-local-suite-s1-h3base`
+- **arm B**: `20261010-122844-B-local-suite-s0-hardpilot`, `20261010-122859-B-local-suite-s0-pilot`, `20261010-143123-B-local-suite-s1-pilot`, `20261010-161320-B-local-suite-s2-pilot`, `20261013-175730-B-local-suite-s0-h3base`, `20261013-180719-B-local-suite-s1-h3base`
+- **arm C**: `20261010-123946-C-local-suite-s0-hardpilot`, `20261010-131213-C-local-suite-s0-pilot`, `20261010-145713-C-local-suite-s1-pilot`, `20261010-163534-C-local-suite-s2-pilot`, `20261013-180033-C-local-suite-s0-h3base`, `20261013-180900-C-local-suite-s1-h3base`
+- **arm D**: `20261010-124906-D-local-suite-s0-hardpilot`, `20261010-133414-D-local-suite-s0-pilot`, `20261010-151554-D-local-suite-s1-pilot`, `20261010-165637-D-local-suite-s2-pilot`, `20261013-180248-D-local-suite-s0-h3base`, `20261013-181036-D-local-suite-s1-h3base`
+- **arm E**: `20261014-230503-E-local-suite-s0-h3`
+- **arm F**: `20261014-230534-F-local-suite-s0-h3`
 
 ### 5.2 Hard tier (crypto/chain: decode→XOR, sibling surfaces)
 

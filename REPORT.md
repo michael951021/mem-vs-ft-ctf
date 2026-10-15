@@ -221,10 +221,12 @@ _Not yet measured (needs a non-zero in-distribution advantage to normalise again
 
 #### Run index (traceability)
 
-- **arm A**: `20261010-114901-A-local-suite-s0-pilot`, `20261010-121357-A-local-suite-s0-hardpilot`, `20261010-140213-A-local-suite-s1-pilot`, `20261010-154333-A-local-suite-s2-pilot`
-- **arm B**: `20261010-122844-B-local-suite-s0-hardpilot`, `20261010-122859-B-local-suite-s0-pilot`, `20261010-143123-B-local-suite-s1-pilot`, `20261010-161320-B-local-suite-s2-pilot`
-- **arm C**: `20261010-123946-C-local-suite-s0-hardpilot`, `20261010-131213-C-local-suite-s0-pilot`, `20261010-145713-C-local-suite-s1-pilot`, `20261010-163534-C-local-suite-s2-pilot`
-- **arm D**: `20261010-124906-D-local-suite-s0-hardpilot`, `20261010-133414-D-local-suite-s0-pilot`, `20261010-151554-D-local-suite-s1-pilot`, `20261010-165637-D-local-suite-s2-pilot`
+- **arm A**: `20261010-114901-A-local-suite-s0-pilot`, `20261010-121357-A-local-suite-s0-hardpilot`, `20261010-140213-A-local-suite-s1-pilot`, `20261010-154333-A-local-suite-s2-pilot`, `20261013-175510-A-local-suite-s0-h3base`, `20261013-180507-A-local-suite-s1-h3base`
+- **arm B**: `20261010-122844-B-local-suite-s0-hardpilot`, `20261010-122859-B-local-suite-s0-pilot`, `20261010-143123-B-local-suite-s1-pilot`, `20261010-161320-B-local-suite-s2-pilot`, `20261013-175730-B-local-suite-s0-h3base`, `20261013-180719-B-local-suite-s1-h3base`
+- **arm C**: `20261010-123946-C-local-suite-s0-hardpilot`, `20261010-131213-C-local-suite-s0-pilot`, `20261010-145713-C-local-suite-s1-pilot`, `20261010-163534-C-local-suite-s2-pilot`, `20261013-180033-C-local-suite-s0-h3base`, `20261013-180900-C-local-suite-s1-h3base`
+- **arm D**: `20261010-124906-D-local-suite-s0-hardpilot`, `20261010-133414-D-local-suite-s0-pilot`, `20261010-151554-D-local-suite-s1-pilot`, `20261010-165637-D-local-suite-s2-pilot`, `20261013-180248-D-local-suite-s0-h3base`, `20261013-181036-D-local-suite-s1-h3base`
+- **arm E**: `20261014-230503-E-local-suite-s0-h3`
+- **arm F**: `20261014-230534-F-local-suite-s0-h3`
 
 ### 5.2 Hard tier (crypto/chain: decode→XOR, sibling surfaces)
 
@@ -253,8 +255,8 @@ _12 attempts, arms ['A', 'B', 'C', 'D'], seeds [0]._
 H1 is supported if the paired advantage over A on **test-indist** is positive and
 its 95% CI excludes 0, ordered D ≥ C ≥ B. H2 is supported if D's **retention** is
 higher than B's and C's (the structured playbook keeps more of its edge on the
-sibling surface). H3 is read off the arm-D vs arm-E points at matched GPU-hours
-once the queued fine-tuning arms complete.
+sibling surface). H3 is read off the arm-D vs arm-E points at matched
+GPU-hours; the matched-7B measurement of exactly those points is now in §5.4.
 
 **The ceiling regime and why H1b matters.** On this local suite the resident 27B
 base solves *every* challenge on *both* tiers with no memory (arm A = 100%,
@@ -268,6 +270,140 @@ success-headroom test of H1/H2 requires a base model that actually fails some
 tasks — the **weaker matched 7B base** (staged, `jobqueue/`) and the harder
 InterCode benchmark — which is exactly why those are queued rather than
 improvised by evicting the resident server mid-session.
+
+---
+
+### 5.4 H3 — memory vs. weights on the matched 7B base
+
+The success-headroom regime §5.1/§5.3 asked for is now measured: all six arms
+on one frozen base, `qwen2.5:7b-instruct`, a base that fails some tasks.
+140 attempts total (`results/summary_h3.json`): arms A–D ran in-loop learning
+(`eval_only: false`) at 2 seeds on the 12-challenge local suite; arms E/F ran
+inference-only (`eval_only: true`) at seed 0, so their eval cells are n=5
+against A–D's n=10. Canonical runs: A–D under
+`runs/20261013-175510-…-h3base` through `runs/20261013-181036-…-h3base`,
+E `runs/20261014-230503-E-local-suite-s0-h3`, F
+`runs/20261014-230534-F-local-suite-s0-h3`. The ~8 earlier superseded h3run
+tries are excluded and are not in these tables
+(`runs_superseded/README.md`).
+
+**Arm E.** QLoRA adapter (nf4, 4-bit; r=16; 3 epochs, batch 8; lr 0.0002;
+seq 1024) trained on the verified-experience SFT corpus, measured at 0.4375
+GPU-hours (`finetune/adapters/E-qwen7b/train_meta.json`). The corpus
+(`finetune/data/sft_all.jsonl`, manifest `finetune/data/manifest.json`) is
+64 step-level records from 1 distinct source challenge (enc-base64, family
+crypto/encoding); decontamination dropped 8 rev-logic trajectories because
+that challenge is in the eval split. **Arm F** is the same adapter plus D's
+seed-0 frozen playbook (`load_memory`).
+
+| arm | train | test-indist | test-transfer |
+|---|---|---|---|
+| A | 0.30 (n=10) | 0.40 (n=10) | 0.60 (n=10) |
+| B | 0.30 (n=10) | 0.30 (n=10) | 0.50 (n=10) |
+| C | 0.20 (n=10) | 0.50 (n=10) | 0.30 (n=10) |
+| D | 0.40 (n=10) | 0.50 (n=10) | 0.60 (n=10) |
+| E | n=0 | 0.80 (n=5) | 0.60 (n=5) |
+| F | n=0 | 0.60 (n=5) | 0.60 (n=5) |
+
+(E/F have no in-run train split: learning happened offline before eval.)
+
+H1 — paired advantage over A on test-indist, clustered bootstrap over the 5
+families, 95% CI:
+
+| arm | adv vs A | 95% CI | n pairs |
+|---|---|---|---|
+| B | -0.10 | [-0.40, +0.20] | 10 |
+| C | +0.10 | [-0.40, +0.60] | 10 |
+| D | +0.10 | [+0.00, +0.30] | 10 |
+| E | +0.40 | [+0.00, +0.80] | 5 |
+| F | +0.20 | [-0.40, +0.80] | 5 |
+
+H2 — transfer retention (adv_transfer / adv_indist):
+
+| arm | adv indist | adv transfer | retention |
+|---|---|---|---|
+| B | -0.10 | -0.10 | 1.0 |
+| C | +0.10 | -0.30 | -3.0 |
+| D | +0.10 | +0.00 | 0.0 |
+| E | +0.40 | +0.00 | 0.0 |
+| F | +0.20 | +0.00 | 0.0 |
+
+H1b — turns saved vs A on jointly-solved tasks:
+
+| arm|split | turns saved | 95% CI | n pairs |
+|---|---|---|---|---|
+| B|test-indist | -3.00 | [-8.00, +2.00] | 2 |
+| B|test-transfer | +0.00 | [-1.00, +1.00] | 5 |
+| C|test-indist | +0.00 | [+0.00, +0.00] | 2 |
+| C|test-transfer | -1.67 | [-4.00, +0.00] | 3 |
+| D|test-indist | +1.00 | [+0.00, +2.00] | 4 |
+| D|test-transfer | -1.17 | [-3.00, +0.00] | 6 |
+| E|test-indist | +0.50 | [+0.00, +1.00] | 2 |
+| E|test-transfer | +0.00 | [+0.00, +0.00] | 3 |
+| F|test-indist | +0.00 | [+0.00, +0.00] | 1 |
+| F|test-transfer | +0.00 | [+0.00, +0.00] | 3 |
+
+Efficiency on solved attempts:
+
+| arm|split | mean turns | mean out-tokens | n solves |
+|---|---|---|---|---|
+| A|test-indist | 4.00 | 83.0 | 4 |
+| A|test-transfer | 3.17 | 58.2 | 6 |
+| B|test-indist | 5.67 | 106.0 | 3 |
+| B|test-transfer | 3.40 | 75.2 | 5 |
+| C|test-indist | 4.40 | 111.6 | 5 |
+| C|test-transfer | 5.00 | 127.7 | 3 |
+| D|test-indist | 3.20 | 151.6 | 5 |
+| D|test-transfer | 4.33 | 137.7 | 6 |
+| E|test-indist | 3.75 | 100.2 | 4 |
+| E|test-transfer | 3.00 | 59.3 | 3 |
+| F|test-indist | 3.67 | 97.7 | 3 |
+| F|test-transfer | 3.00 | 59.3 | 3 |
+
+**Reading it.** This base has success headroom (A solves 0.40 in-distribution,
+0.60 transfer), so H1 as a *success* hypothesis is testable here — unlike the
+resident-base pilot in §5.1/§5.3. **H1:** E's +0.40 is the largest advantage
+but its CI [+0.00, +0.80] touches 0; D (+0.10, [+0.00, +0.30]) and F
+(+0.20, [-0.40, +0.80]) include 0. No arm beats A significantly at this n.
+**H2:** C–F show little transfer advantage (+0.00, or -0.30 for C), so
+retention is 0.0 across C–F; B's 1.0 is degenerate (-0.10/-0.10).
+**H1b:** every cell includes 0; the only positive point estimates are D +1.00
+in-distribution and E +0.50 in-distribution, each on 2 pairs. **Efficiency:**
+D is fastest in-distribution (3.20 turns) but most verbose (151.6 out-tokens);
+E and F match A on transfer (3.00 turns, 59.3 tokens). In-loop learning
+progress (cumulative train solves vs training-attempt index, averaged over
+seeds): D 2.0, A 1.5, B 1.5, C 1.0 out of 5 tasks; E/F have no in-run curve
+(learned offline).
+
+**Frontier, characterised (not a declared winner).** Memory arms spent 0
+training GPU-hours — learning is free at inference time, on top of serving —
+while E's weights cost a one-off 0.4375 GPU-hours. The points on the frontier
+at this n: weights (E) = the largest, non-significant success edge at a
+one-off training cost; memory (D) = a small, non-significant edge plus the
+fastest in-distribution solves, at zero training cost; the hybrid (F) =
+midway, dominating neither. All differences sit inside CI overlap; seeds 1+
+for E/F are the natural next step.
+
+**Caveats.**
+1. **n per cell.** E/F: 1 seed, n=5 per eval split vs A–D's 2 seeds, n=10;
+   CIs are correspondingly wide.
+2. **E's corpus is single-family.** 64 records, 1 distinct source challenge
+   (enc-base64). Arm A's verified pool at build time (2026-10-13) was 3 train
+   solves (enc-base64 twice, rev-logic once); decontamination removed
+   rev-logic (it is in the eval split), so "E learned the same verified
+   experience the memory arms consolidated" is only approximately true. The
+   corpus build also swept run directories that still contained the ~8
+   superseded attempts (moved aside only by the E/F serve job,
+   `runs/20261014-230503-…`), so corpus rows mix code versions.
+3. **Protocol asymmetry.** A–D ran `max_turns 15 / num_predict 384`; E/F ran
+   `max_turns 20 / num_predict 512` (separate serve jobs, not equalized).
+   Every E failure hit the 20-turn cap, so E's 0.80/0.60 are upper bounds
+   under that protocol.
+4. **GPU-hours accounting.** Only E's training is charged (0.4375 h). The
+   plan's 1146.88 estimate is an uncalibrated placeholder and is not used
+   anywhere in this report; serve/eval GPU-hours are not charged to either
+   side, so "equal GPU-hours" here means the one-off training cost is
+   disclosed rather than offset.
 
 ---
 
@@ -305,9 +441,11 @@ improvised by evicting the resident server mid-session.
    harder **InterCode** benchmark — plus more challenges per family.
 
 These observations are exactly the kind the design is meant to surface, logged
-per-attempt under `runs/` with the run ids in §5. The headline H1/H2/H3 success
-verdicts await the weaker-base / QLoRA runs staged in `jobqueue/`; the pilot's
-measured verdict is on **step-efficiency**, and it is a negative for arm D.
+per-attempt under `runs/` with the run ids in §5. The matched-7B H3 success
+measurement (all six arms, one frozen base) is now in §5.4 and is a null at
+this n; the harder-scale H1/H2 success test still awaits the InterCode runs
+staged in `jobqueue/`. This 27B pilot's measured verdict is on
+**step-efficiency**, and it is a negative for arm D.
 
 ## 6. Figures
 - **`fig5_turns_saved.png` — the headline result:** turns saved vs Arm A on
@@ -342,7 +480,9 @@ remain fair — and (b) ran the inference-only memory arms (A–D) on the local 
 now, while staging the GPU-bound weight arms (E/F) and the Docker scale-up on the
 host queue (`jobqueue/`, ~4.8 h when a card frees). This is the §11-B6 discipline
 of the brief: **a smaller finished study beats a half-run large one.** Nothing in
-§5 is imputed; absent arms are marked "not yet measured," never faked.
+§5 is imputed; absent arms are marked "not yet measured," never faked. The
+staged E/F runs have since completed on the matched 7B base (§5.4); the
+InterCode scale-up remains staged.
 
 ---
 
@@ -375,11 +515,13 @@ of the brief: **a smaller finished study beats a half-run large one.** Nothing i
    *pilot* that exercises the full protocol end to end, not a powered study. The
    InterCode/NYU/Cybench scale-up is implemented and staged, not yet run (Docker
    absent; GPU committed).
-2. **Base-model mismatch for H3, addressed by the queue.** A–D piloted on a 27B
-   model (what was resident); the clean compute-matched H3 re-runs A–D on a 7–14B
-   base and QLoRAs that same base (`jobqueue/jobs/`), so every arm shares one
-   frozen base. Until that queued job runs, H3 is characterised as *method +
-   staged*, not measured.
+2. **H3 base-mismatch, resolved; residual limits remain (§5.4).** A–D first
+   piloted on the resident 27B model (what was loaded); the matched-7B re-run
+   now puts all six arms on one frozen base (`qwen2.5:7b-instruct`, with E/F
+   QLoRA-adapted from it), so H3 is measured, not staged. Residual H3 limits:
+   E's SFT corpus is a single-family, single-challenge build; E/F have one
+   seed (n=5 per eval cell vs n=10); and the A–D vs E/F serve protocols were
+   not equalized (`max_turns 15` vs `20`).
 3. **Heuristic Reflector by default.** The centerpiece arm's Reflector is
    heuristic to keep consolidation free under contention; the LLM-reflector
    variant is a supported ablation, not the measured default.
