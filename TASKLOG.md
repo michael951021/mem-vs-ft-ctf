@@ -23,3 +23,7 @@
 - Goal: H3 matched-base GPU run
 - Approach: compute job h3run ran bash scripts/gpu_job.sh (exit 0)
 - Blockers: none
+## H3 E/F serve + eval
+- Goal: H3 E/F serve + eval
+- Approach: compute job h3serve ran bash scripts/h3_serve_job.sh (exit 0)
+- Blockers: none
