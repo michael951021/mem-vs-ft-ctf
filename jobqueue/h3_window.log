@@ -1,6 +1,0 @@
-[2026-10-11T02:52:23-04:00] orchestrator start (pid 642843)
-[2026-10-11T02:52:23-04:00] waiting for both GPUs to be released by the drain...
-[2026-10-11T04:22:30-04:00] TIMEOUT: GPUs still busy (gpu0=20882 gpu1=21420) after 5400s -- an agent task is still finishing. Aborting pipeline; resuming.
-[2026-10-11T04:22:30-04:00] === RESUME: handing GPUs back to the hub agents ===
-notify: Resume — Queue order restored to 02:46; the pool fills all 2 slots again.
-Queue order restored to 02:46; the pool fills all 2 slots again.
