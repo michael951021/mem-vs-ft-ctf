@@ -13,11 +13,12 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SCRIPT = os.path.join(REPO, "scripts", "run_pilot.sh")
-PY = os.path.join(REPO, ".venv-gpu", "bin", "python")
+PY = os.environ.get("PY") or sys.executable  # the interpreter running this test, not a host-only venv
 N_ATTEMPTS = 15  # 5 train + 5 test-indist + 5 test-transfer (easy suite)
 
 

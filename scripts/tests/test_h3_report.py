@@ -21,7 +21,7 @@ import re
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SUMMARY = os.path.join(REPO, "results", "summary_h3.json")
 REPORT = os.path.join(REPO, "REPORT.md")
-TRAIN_META = os.path.join(REPO, "finetune", "adapters", "E-qwen7b", "train_meta.json")
+TRAIN_META = os.path.join(REPO, "results", "h3_train_meta.json")  # tracked copy of the adapter's train_meta.json
 MANIFEST = os.path.join(REPO, "finetune", "data", "manifest.json")
 FAILS = []
 
